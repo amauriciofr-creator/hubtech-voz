@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HUBTECH Voz</title>
+<meta name="theme-color" content="#120f1c">
+<meta name="description" content="Recomienda teléfonos por presupuesto y consulta el stock de HUB TECH STORE con la voz.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HUBTECH Voz">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one column built for a phone on a dashboard mount. Answer first in big type, matching phones below, a large mic button pinned to the bottom within thumb reach. Dark first (night driving), light on request. */
+:root{
+  --bg:#120f1c; --panel:#1c1829; --panel-2:#272237; --line:#342e47; --fg:#f3f0fb; --muted:#a9a2c0;
+  --brand:#9d6bff; --brand-2:#7b45f0; --on-brand:#ffffff; --listen:#ff5d7a;
+  --ok:#5fd39a; --ok-bg:#12301f; --bad:#ff8b91; --bad-bg:#3b1519; --warn:#f0b65a; --warn-bg:#382a0f;
+  --sans:"Outfit","Segoe UI",system-ui,-apple-system,sans-serif;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#f5f3fb; --panel:#ffffff; --panel-2:#eeebf6; --line:#e2ddee; --fg:#17131f; --muted:#6c6680;
+  --brand:#7b45f0; --brand-2:#5b25d9; --on-brand:#ffffff; --listen:#e0335a;
+  --ok:#137a4b; --ok-bg:#e2f4ea; --bad:#b3242d; --bad-bg:#fde6e7; --warn:#8f5600; --warn-bg:#fff1d6;
+  color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#f5f3fb; --panel:#ffffff; --panel-2:#eeebf6; --line:#e2ddee; --fg:#17131f; --muted:#6c6680;
+  --brand:#7b45f0; --brand-2:#5b25d9; --on-brand:#ffffff; --listen:#e0335a;
+  --ok:#137a4b; --ok-bg:#e2f4ea; --bad:#b3242d; --bad-bg:#fde6e7; --warn:#8f5600; --warn-bg:#fff1d6;
+  color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font:16px/1.45 var(--sans);
+  padding-top:env(safe-area-inset-top,0px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:640px;margin:0 auto;display:grid;gap:16px;padding-block:14px 0}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;letter-spacing:.01em}
+.brand i{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;color:var(--on-brand);font-style:normal;font-size:15px;font-weight:700}
+.brand small{display:block;font-size:12px;font-weight:400;color:var(--muted);letter-spacing:0}
+.icon-btn{width:44px;height:44px;border-radius:50%;border:none;background:var(--panel);color:var(--fg);display:grid;place-items:center;cursor:pointer}
+.icon-btn svg{width:21px;height:21px}
+button:focus-visible,input:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.fresh{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:none}
+.dot.old{background:var(--warn)} .dot.off{background:var(--bad)}
+.answer{background:var(--panel);border-radius:24px;padding:20px;display:grid;gap:10px}
+.answer .q{font-size:14px;color:var(--muted);min-height:1.2em}
+.answer .a{font-size:clamp(21px,5.6vw,27px);line-height:1.3;font-weight:500;text-wrap:pretty}
+.answer .a b{color:var(--brand);font-weight:600}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:10px 16px;font:500 15px var(--sans);cursor:pointer;font-variant-numeric:tabular-nums}
+.chip:active{background:var(--panel-2)}
+.list{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.item{background:var(--panel);border-radius:20px;padding:14px 16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center}
+.item .nm{font-weight:600;font-size:17px;line-height:1.25;min-width:0;overflow-wrap:anywhere}
+.item .sub{font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.item .pr{text-align:right;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.item .pr small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;margin-right:6px;vertical-align:1px}
+.tag.ok{background:var(--ok-bg);color:var(--ok)} .tag.no{background:var(--bad-bg);color:var(--bad)} .tag.ob{background:var(--warn-bg);color:var(--warn)}
+.section-t{font-size:13px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:500;margin:4px 4px -4px}
+/* bottom dock */
+.dock{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(to top,var(--bg) 70%,transparent);
+  padding:18px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.dock-in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+form.ask{display:flex;background:var(--panel);border-radius:999px;padding:5px 5px 5px 18px;gap:6px;min-width:0;border:1px solid var(--line)}
+form.ask input{flex:1;min-width:0;border:none;background:transparent;color:var(--fg);font:16px var(--sans);outline:none}
+form.ask button{border:none;border-radius:999px;background:var(--panel-2);color:var(--fg);width:44px;height:44px;display:grid;place-items:center;cursor:pointer;flex:none}
+.mic{width:84px;height:84px;border-radius:50%;border:none;cursor:pointer;color:var(--on-brand);
+  background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;box-shadow:0 8px 24px rgba(123,69,240,.35);position:relative}
+.mic svg{width:36px;height:36px}
+.mic.on{background:var(--listen);box-shadow:0 0 0 0 var(--listen)}
+@media (prefers-reduced-motion:no-preference){.mic.on{animation:pulse 1.4s ease-out infinite}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,93,122,.55)}100%{box-shadow:0 0 0 22px rgba(255,93,122,0)}}
+.mic.speaking{background:var(--panel-2);color:var(--brand)}
+.mode{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--panel);border-radius:18px;padding:12px 16px;font-size:15px}
+.mode small{display:block;color:var(--muted);font-size:13px}
+.switch{position:relative;width:52px;height:30px;flex:none}
+.switch input{opacity:0;width:100%;height:100%;margin:0;position:absolute;cursor:pointer}
+.switch span{position:absolute;inset:0;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);pointer-events:none;transition:background .2s}
+.switch span::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
+.switch input:checked+span{background:var(--brand)}
+.switch input:checked+span::after{transform:translateX(22px);background:var(--on-brand)}
+.switch input:focus-visible+span{outline:2px solid var(--brand);outline-offset:2px}
+/* setup */
+.setup{background:var(--panel);border-radius:24px;padding:20px;display:grid;gap:12px}
+.setup h2{margin:0;font-size:20px;font-weight:600}
+.setup p{margin:0;color:var(--muted);font-size:14.5px}
+.setup input{width:100%;font:15px var(--sans);color:var(--fg);background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.btn{border:none;border-radius:999px;padding:13px 20px;font:600 16px var(--sans);cursor:pointer;background:var(--brand);color:var(--on-brand)}
+.btn.sec{background:var(--panel-2);color:var(--fg)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.msg{font-size:14px;padding:10px 14px;border-radius:14px}
+.msg.bad{background:var(--bad-bg);color:var(--bad)} .msg.ok{background:var(--ok-bg);color:var(--ok)}
+.help{font-size:14px;color:var(--muted);display:grid;gap:4px}
+.help b{color:var(--fg);font-weight:500}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><i aria-hidden="true">HT</i><div>HUBTECH Voz<small>Asesor de teléfonos</small></div></div>
+    <div class="row" style="gap:8px">
+      <button class="icon-btn" id="btnTheme" aria-label="Cambiar entre modo claro y oscuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg></button>
+      <button class="icon-btn" id="btnSetup" aria-label="Configurar conexión con el inventario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </div>
+  </header>
+
+  <section class="setup" id="setup" hidden>
+    <h2>Conectar con el inventario</h2>
+    <p>Pega el enlace de la hoja "HUB Tech Control Inventario" (el de la aplicación web de Apps Script, terminado en <b>?k=</b> y la clave). Queda guardado solo en este teléfono.</p>
+    <input id="cfgUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/…/exec?k=…">
+    <div class="row"><button class="btn" id="cfgSave">Guardar y probar</button><button class="btn sec" id="cfgDemo">Ver con datos de ejemplo</button></div>
+    <div class="msg" id="cfgMsg" hidden></div>
+  </section>
+
+  <div class="fresh" id="fresh"><span class="dot" id="freshDot"></span><span id="freshTxt">Cargando inventario…</span></div>
+
+  <section class="answer" aria-live="polite">
+    <div class="q" id="said"></div>
+    <div class="a" id="answer">Toca el micrófono y pregunta, por ejemplo: <b>"¿Qué me recomiendas con 400 dólares?"</b> o <b>"¿Tengo iPhone 16?"</b></div>
+  </section>
+
+  <div class="chips" id="chips" aria-label="Presupuestos rápidos"></div>
+
+  <div class="section-t" id="listT" hidden></div>
+  <ul class="list" id="list"></ul>
+
+  <label class="mode" for="handsFree">
+    <div>Manos libres<small>Después de cada respuesta vuelve a escuchar. Di "gracias" para terminar.</small></div>
+    <span class="switch"><input type="checkbox" id="handsFree"><span></span></span>
+  </label>
+
+  <div class="help">
+    <div><b>"Recomiéndame un Samsung hasta 300"</b></div>
+    <div><b>"¿Hay Honor 600 en verde?"</b></div>
+    <div><b>"Open box con 700 dólares"</b></div>
+    <div><b>"¿Qué tengo de Xiaomi?"</b></div>
+  </div>
+</div>
+
+<div class="dock">
+  <div class="dock-in">
+    <form class="ask" id="ask" autocomplete="off">
+      <input id="q" placeholder="Escribe o dicta tu pregunta" enterkeyhint="send" aria-label="Pregunta">
+      <button type="submit" aria-label="Preguntar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </form>
+    <button class="mic" id="mic" aria-label="Hablar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+  </div>
+</div>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k, v){ try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch(e){} }
+};
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fold = s => String(s ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+const money = n => "$" + Math.round(n).toLocaleString("en-US");
+
+// ---------- theme ----------
+const applyTheme = t => { if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; };
+applyTheme(store.get("hv.theme"));
+$("btnTheme").onclick = () => {
+  const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : !matchMedia("(prefers-color-scheme: light)").matches;
+  const t = dark ? "light" : "dark"; store.set("hv.theme", t); applyTheme(t);
+};
+
+// ---------- data ----------
+const DEMO = { at: null, demo: true, items: [
+  { t: "N", m: "APPLE", n: "IPHONE 16 128GB BLACK (EJEMPLO)", s: 2, e: 738, c: 849 },
+  { t: "N", m: "APPLE", n: "IPHONE 17 PRO 256GB SILVER (EJEMPLO)", s: 0, e: 1331, c: 1531 },
+  { t: "N", m: "SAMSUNG", n: "SAMSUNG GALAXY A16 128GB BLACK (EJEMPLO)", s: 4, e: 189, c: 217 },
+  { t: "N", m: "SAMSUNG", n: "SAMSUNG GALAXY A56 256GB GRAY (EJEMPLO)", s: 1, e: 429, c: 493 },
+  { t: "N", m: "HONOR", n: "HONOR 600E 256GB 8GB GREEN (EJEMPLO)", s: 3, e: 452, c: 520 },
+  { t: "N", m: "XIAOMI", n: "REDMI NOTE 15 256GB BLUE (EJEMPLO)", s: 5, e: 279, c: 321 },
+  { t: "O", m: "APPLE", n: "IPHONE 15 PRO 128GB BLUE TITANIUM OB 86% (EJEMPLO)", s: 1, e: 700, c: 805 }
+]};
+let DATA = null, loading = null;
+let src = store.get("hv.url") || "";
+
+function loadCache(){ try { const d = JSON.parse(store.get("hv.data") || "null"); if (d && Array.isArray(d.items)) DATA = d; } catch(e){} }
+async function fetchData(){
+  if (!src) return false;
+  if (loading) return loading;
+  loading = (async () => {
+    try {
+      const r = await fetch(src, { cache: "no-store" });
+      const d = await r.json();
+      if (d.error === "clave") throw new Error("clave");
+      if (!Array.isArray(d.items)) throw new Error("formato");
+      DATA = d; store.set("hv.data", JSON.stringify(d)); fresh(); return true;
+    } catch(e){ fresh(e.message === "clave" ? "La clave del enlace no es correcta." : null); return false; }
+    finally { loading = null; }
+  })();
+  return loading;
+}
+const ageMin = () => DATA?.at ? (Date.now() - new Date(DATA.at)) / 60000 : Infinity;
+function agoTxt(){
+  const m = ageMin();
+  if (m < 1) return "hace un momento";
+  if (m < 60) return `hace ${Math.round(m)} min`;
+  if (m < 60 * 24) return `hace ${Math.round(m / 60)} h`;
+  return `el ${new Date(DATA.at).toLocaleDateString("es-EC")}`;
+}
+function fresh(err){
+  const dot = $("freshDot"), t = $("freshTxt");
+  if (!DATA){ dot.className = "dot off"; t.textContent = err || (src ? "No pude leer el inventario. Revisa la conexión." : "Falta conectar el inventario. Toca el engranaje."); return; }
+  if (DATA.demo){ dot.className = "dot old"; t.textContent = "Datos de ejemplo. Conecta tu inventario con el engranaje."; return; }
+  const n = DATA.items.filter(i => i.s > 0).reduce((a, i) => a + i.s, 0);
+  dot.className = "dot" + (ageMin() > 30 ? " old" : "") + (err ? " off" : "");
+  t.textContent = (err ? err + " " : "") + `Inventario actualizado ${agoTxt()} · ${n} equipos en stock`;
+}
+async function ensureFresh(){ if (src && ageMin() > 2) await fetchData(); }
+
+// ---------- language ----------
+const UNITS = { cero:0, un:1, uno:1, una:1, dos:2, tres:3, cuatro:4, cinco:5, seis:6, siete:7, ocho:8, nueve:9, diez:10, once:11, doce:12, trece:13, catorce:14, quince:15, dieciseis:16, diecisiete:17, dieciocho:18, diecinueve:19, veinte:20, veintiun:21, veintiuno:21, veintidos:22, veintitres:23, veinticuatro:24, veinticinco:25, veintiseis:26, veintisiete:27, veintiocho:28, veintinueve:29, treinta:30, cuarenta:40, cincuenta:50, sesenta:60, setenta:70, ochenta:80, noventa:90, cien:100, ciento:100, doscientos:200, trescientos:300, cuatrocientos:400, quinientos:500, seiscientos:600, setecientos:700, ochocientos:800, novecientos:900 };
+// "mil doscientos cincuenta" -> "1250"; leaves other words alone
+function wordsToDigits(t){
+  const w = t.split(/\s+/), out = [];
+  let i = 0;
+  while (i < w.length){
+    if (!(w[i] in UNITS) && w[i] !== "mil"){ out.push(w[i++]); continue; }
+    let total = 0, cur = 0, used = 0, j = i;
+    while (j < w.length){
+      const x = w[j];
+      if (x in UNITS){ cur += UNITS[x]; used++; j++; }
+      else if (x === "mil"){ total += (cur || 1) * 1000; cur = 0; used++; j++; }
+      else if (x === "y" && j + 1 < w.length && w[j + 1] in UNITS && used){ j++; }
+      else break;
+    }
+    const v = total + cur;
+    // a lone "un"/"una" is an article, not a number
+    if (used === 1 && (w[i] === "un" || w[i] === "una" || w[i] === "uno")) out.push(w[i]);
+    else out.push(String(v));
+    i = Math.max(j, i + 1);
+  }
+  return out.join(" ");
+}
+function normalize(text){
+  let t = fold(text).replace(/(\d)[.,](\d{3})\b/g, "$1$2").replace(/\$\s*/g, " $").replace(/[¿?¡!,;:]/g, " ");
+  t = t.replace(/\bopen\s*box\b|\bopenbox\b|\bseminuevos?\b|\busados?\b|\bcaja abierta\b/g, " openbox ");
+  t = t.replace(/(\d+)\s*(gb|gigas?|g)\b/g, "$1gb").replace(/(\d+)\s*(tb|teras?)\b/g, "$1tb");
+  t = t.replace(/\biphones?\b|\bi phone\b|\baifon\b|\baifons\b|\bayfon\b/g, "iphone");
+  t = t.replace(/\bsansung\b|\bsamsumg\b/g, "samsung").replace(/\bshaomi\b|\bxiaomi\b|\bchaomi\b/g, "xiaomi").replace(/\bonor\b/g, "honor");
+  return wordsToDigits(t.replace(/\s+/g, " ").trim());
+}
+const BRAND_ALIASES = { iphone: "APPLE", apple: "APPLE", ipad: "APPLE", galaxy: "SAMSUNG", redmi: "XIAOMI", poco: "XIAOMI", moto: "MOTOROLA" };
+const COLORS = { verde:["green"], negro:["black","negro"], azul:["blue","azul"], blanco:["white","blanco"], plateado:["silver"], plata:["silver"], dorado:["gold"], oro:["gold"], morado:["purple","violet"], lila:["purple","lavender"], rosado:["pink"], rosa:["pink"], gris:["gray","grey"], titanio:["titanium"], natural:["natural"], rojo:["red"], amarillo:["yellow"], celeste:["blue","sky"], naranja:["orange"], cafe:["brown"], beige:["beige","sand"] };
+const STOP = new Set(("a al algo algun alguna alguno algunos alla aqui asi ayudame busca buscame busco cantidad cliente como con cual cuales cuanto cuantos cuantas cuesta da dame de decime del di dime disponible disponibles dolar dolares el ella en entre equipo equipos es esa ese esta estan este favor hasta hay hey hola la las le lo los mas me menos mi mira modelo modelos necesito no o oye para pero plata por porfa precio presupuesto puedo que queda quedan quiero recomendacion recomendaciones recomendado recomendame recomiendame recomienda recomiendas recomiendo revisa se ser si sobre son stock su tal te telefono telefonos celular celulares tenemos tener tengo tiene tienen tienes todavia tu un una uno unos unidades unidad usd valor vale ver verifica y ya hablame cuentame dolares bueno ok okay mmm eh tipo marca maximo aproximadamente unos").split(" "));
+const STOP_WORDS = /^(ok |bueno |listo )?(muchas )?(gracias|eso es todo|ya esta|terminar|salir|detente|chao|adios)( .*)?$/;
+
+function parse(text){
+  const t = normalize(text);
+  const q = { raw: text, t, budget: null, brand: null, cond: null, tokens: [] };
+  if (/\bopenbox\b/.test(t)) q.cond = "O"; else if (/\bnuevos?\b|\bsellados?\b/.test(t)) q.cond = "N";
+  // budget: a money-tagged number wins; otherwise the largest number that is not a storage size or a model number
+  const SIZES = [64, 128, 256, 512, 1024];
+  // a number that starts a model name ("honor 600", "galaxy s25") is not a budget unless it is clearly money
+  const modelNum = v => (DATA?.items || []).some(i => nameTokens(i.n).some(nt => /^\d+[a-z]*$/.test(nt) && nt.startsWith(String(v)) && !/(gb|tb)$/.test(nt)));
+  const tagged = [...t.matchAll(/\$(\d+)|(\d+)\s*(?:dolares|dolar|usd)\b|(presupuesto|hasta|maximo|con|de|por|unos)\s+(?:de\s+)?(\d{3,5})\b/g)]
+    .map(m => ({ m, v: +(m[1] || m[2] || m[4]), strong: !!(m[1] || m[2]), sure: /presupuesto|hasta|maximo/.test(m[3] || "") }))
+    .filter(x => x.strong || (!SIZES.includes(x.v) && (x.sure || !modelNum(x.v))));
+  const hit = tagged.find(x => x.strong) || tagged[0];
+  let rest = t;
+  if (hit){ q.budget = hit.v; rest = t.replace(hit.m[0], " "); }
+  else {
+    const nums = (t.match(/\b\d{3,5}\b/g) || []).map(Number).filter(n => n >= 80 && !SIZES.includes(n) && !modelNum(n));
+    if (nums.length){ q.budget = Math.max(...nums); rest = t.replace(new RegExp("\\b" + q.budget + "\\b"), " "); }
+  }
+  const brands = new Set((DATA?.items || []).map(i => i.m.toLowerCase()).filter(Boolean));
+  const words = rest.split(" ").filter(Boolean);
+  for (const w of words){
+    if (BRAND_ALIASES[w] && !q.brand) q.brand = BRAND_ALIASES[w];
+    else if (brands.has(w) && !q.brand) q.brand = w.toUpperCase();
+  }
+  q.tokens = words.filter(w => !STOP.has(w) && w !== "openbox" && w !== "nuevo" && w !== "nuevos" )
+    .filter(w => !(BRAND_ALIASES[w] && w !== "iphone" && w !== "galaxy" && w !== "redmi" && w !== "poco") && !(brands.has(w)));
+  return q;
+}
+
+// ---------- matching ----------
+const nameTokens = n => fold(n).replace(/(\d+)\s*(gb|tb)\b/g, "$1$2").split(/[^a-z0-9%]+/).filter(Boolean);
+function tokenHit(qt, toks){
+  const alts = COLORS[qt] || [qt];
+  return alts.some(a => toks.some(nt => /^\d/.test(a) ? nt === a || nt === a + "gb" : nt === a || (a.length >= 4 && nt.startsWith(a))));
+}
+function filterPool(q){
+  let pool = DATA.items.filter(i => (!q.brand || i.m === q.brand || fold(i.n).includes(fold(q.brand))) && (!q.cond || i.t === q.cond));
+  if (!q.tokens.length) return { pool, matched: false };
+  let best = 0; const scored = pool.map(i => { const toks = nameTokens(i.n); const s = q.tokens.filter(qt => tokenHit(qt, toks)).length; best = Math.max(best, s); return { i, s }; });
+  if (!best) return { pool, matched: false, unknown: q.tokens };
+  return { pool: scored.filter(x => x.s === best).map(x => x.i), matched: true, partial: best < q.tokens.length };
+}
+
+// ---------- speech-friendly names ----------
+const SMALL = new Set(["de","y","con"]);
+function prettyName(n){
+  return String(n).replace(/\(EJEMPLO\)/i, "").replace(/["“”]/g, "").trim().toLowerCase()
+    .replace(/\b(\w)/g, c => c.toUpperCase()).replace(/\biphone\b/gi, "iPhone").replace(/\bipad\b/gi, "iPad")
+    .replace(/(\d+)\s*gb\b/gi, "$1GB").replace(/(\d+)\s*tb\b/gi, "$1TB").replace(/\bOb\b/g, "Open box").replace(/\b(E-?sim)\b/gi, "eSIM").replace(/\bSim Fisico\b/gi, "SIM física")
+    .replace(/\b(De|Y|Con)\b/g, m => SMALL.has(m.toLowerCase()) ? m.toLowerCase() : m)
+    + (/\(EJEMPLO\)/i.test(n) ? " (ejemplo)" : "");
+}
+function sayName(n){
+  return prettyName(n).replace(/\s*\(ejemplo\)/, "").replace(/\s*Open box(\s+\d+%)?/i, "").replace(/(\d+)GB\s+(\d{1,2})GB\b/, "$1GB, $2 de RAM").replace(/(\d+)GB\b/g, "$1 gigas").replace(/(\d+)TB\b/g, "$1 tera").replace(/eSIM/g, "e-sim").replace(/(\d+)%/g, "$1 por ciento");
+}
+const obNote = i => { if (i.t !== "O") return ""; const m = /(\d+)\s*%/.exec(i.n); return m ? `, open box al ${m[1]} por ciento` : ", open box"; };
+const units = n => n === 1 ? "1 unidad" : `${n} unidades`;
+const plural = (n, one, many) => n === 1 ? `1 ${one}` : `${n} ${many}`;
+const within = (i, budget) => Math.round(i.e) <= budget;
+
+// ---------- answers ----------
+function answer(text){
+  if (!DATA) return { say: "Todavía no tengo el inventario. Conecta la hoja desde el engranaje.", html: "Todavía no tengo el inventario. Conecta la hoja desde el <b>engranaje</b>.", items: [] };
+  const q = parse(text);
+  if (q.budget != null) return recommend(q);
+  if (q.tokens.length) return stock(q);
+  if (q.brand || q.cond) return byBrand(q);
+  return { say: "No te entendí. Puedes decir, por ejemplo: qué me recomiendas con 400 dólares, o tengo iPhone 16.", html: "No te entendí. Prueba con <b>\"¿Qué me recomiendas con 400 dólares?\"</b> o <b>\"¿Tengo iPhone 16?\"</b>", items: [] };
+}
+function recommend(q){
+  const { pool } = filterPool(q);
+  const what = [q.cond === "O" ? "open box" : "", q.tokens.length ? q.tokens.join(" ") : q.brand ? q.brand.toLowerCase().replace(/^\w/, c => c.toUpperCase()) : ""].filter(Boolean).join(" ");
+  const inStock = pool.filter(i => i.s > 0 && i.e > 0);
+  const fit = inStock.filter(i => within(i, q.budget)).sort((a, b) => b.e - a.e);
+  const top = fit.slice(0, 3);
+  const above = inStock.filter(i => !within(i, q.budget) && i.e <= q.budget * 1.15).sort((a, b) => a.e - b.e)[0];
+  const lead = `Con ${money(q.budget)}${what ? " en " + what : ""}`, leadSay = `Con ${q.budget} dólares${what ? " en " + what : ""}`;
+  if (!top.length){
+    const cheapest = inStock.sort((a, b) => a.e - b.e)[0];
+    if (!cheapest) return { say: `No tengo ${what || "equipos"} en stock ahora.`, html: `No tengo <b>${esc(what || "equipos")}</b> en stock ahora.`, items: [] };
+    return { say: `${leadSay} no tengo nada en stock. El más cercano es el ${sayName(cheapest.n)}, a ${Math.round(cheapest.e)} dólares en efectivo.`,
+      html: `${esc(lead)} no tengo nada en stock. El más cercano es el <b>${esc(prettyName(cheapest.n))}</b> a <b>${money(cheapest.e)}</b> en efectivo.`, items: [cheapest], title: "Opción más cercana" };
+  }
+  const ord = ["Primero", "Segundo", "Tercero"];
+  const say = `${leadSay} te recomiendo ${top.length === 1 ? "el" : "estos " + top.length + ":"} ` + top.map((i, k) => `${top.length > 1 ? ord[k] + ", " : ""}${sayName(i.n)}${obNote(i)}, a ${Math.round(i.e)} dólares, hay ${units(i.s)}.`).join(" ")
+    + (above ? ` Si el cliente puede subir a ${Math.round(above.e)}, tienes el ${sayName(above.n)}.` : "");
+  const html = `${esc(lead)} te recomiendo ` + top.map(i => `<b>${esc(prettyName(i.n))}</b>`).join(", ") + "." + (above ? ` Si sube a ${money(above.e)}: ${esc(prettyName(above.n))}.` : "");
+  return { say, html, items: above ? [...top, above] : top, title: `Recomendados hasta ${money(q.budget)}` };
+}
+function stock(q){
+  const r = filterPool(q);
+  if (!r.matched){
+    const w = r.unknown.join(" ");
+    return { say: `No encontré ${w} en el inventario.`, html: `No encontré <b>${esc(w)}</b> en el inventario.`, items: [] };
+  }
+  const items = r.pool.slice().sort((a, b) => (b.s > 0) - (a.s > 0) || a.e - b.e);
+  const yes = items.filter(i => i.s > 0), total = yes.reduce((a, i) => a + i.s, 0);
+  const label = q.tokens.join(" ");
+  if (!yes.length){
+    return { say: `No, ${label} está agotado.` + (items.length > 1 ? ` Ninguna de las ${items.length} versiones tiene stock.` : ""),
+      html: `No, <b>${esc(label)}</b> está agotado.`, items: items.slice(0, 6), title: "Sin stock" };
+  }
+  let say;
+  if (yes.length === 1) say = `Sí, tienes ${units(yes[0].s)} de ${sayName(yes[0].n)}${obNote(yes[0])}, a ${Math.round(yes[0].e)} dólares en efectivo y ${Math.round(yes[0].c)} con tarjeta.`;
+  else say = `Sí, tienes ${units(total)} en ${yes.length} versiones. ` + yes.slice(0, 3).map(i => `${sayName(i.n)}${obNote(i)}: ${i.s}, a ${Math.round(i.e)} dólares.`).join(" ") + (yes.length > 3 ? ` Y ${yes.length - 3} más en la pantalla.` : "");
+  const html = yes.length === 1 ? `Sí, tienes <b>${units(yes[0].s)}</b> de ${esc(prettyName(yes[0].n))} a <b>${money(yes[0].e)}</b> en efectivo.`
+    : `Sí, tienes <b>${units(total)}</b> en ${yes.length} versiones.`;
+  return { say, html, items: items.slice(0, 10), title: "En inventario" };
+}
+function byBrand(q){
+  const { pool } = filterPool(q);
+  const yes = pool.filter(i => i.s > 0).sort((a, b) => a.e - b.e), total = yes.reduce((a, i) => a + i.s, 0);
+  const what = [q.brand ? q.brand.toLowerCase().replace(/^\w/, c => c.toUpperCase()) : "", q.cond === "O" ? "open box" : q.cond === "N" ? "nuevos" : ""].filter(Boolean).join(" ");
+  if (!yes.length) return { say: `No tengo ${what} en stock.`, html: `No tengo <b>${esc(what)}</b> en stock.`, items: [] };
+  const lo = yes[0].e, hi = yes[yes.length - 1].e;
+  return { say: `De ${what} tienes ${units(total)} en ${plural(yes.length, "modelo", "modelos")}, ` + (yes.length === 1 ? `a ${Math.round(lo)} dólares.` : `desde ${Math.round(lo)} hasta ${Math.round(hi)} dólares.`) + ` Dime un presupuesto y te recomiendo.`,
+    html: `De <b>${esc(what)}</b> tienes <b>${units(total)}</b> en ${plural(yes.length, "modelo", "modelos")}, de ${money(lo)} a ${money(hi)}.`, items: yes.slice(0, 12), title: what };
+}
+
+// ---------- render ----------
+function render(res, said){
+  $("said").textContent = said ? `"${said}"` : "";
+  $("answer").innerHTML = res.html;
+  $("listT").hidden = !res.items.length; $("listT").textContent = res.title || "";
+  $("list").innerHTML = res.items.map(i => `<li class="item">
+    <div class="nm">${esc(prettyName(i.n))}</div>
+    <div class="pr">${i.e ? money(i.e) : "—"}<small>efectivo</small></div>
+    <div class="sub"><span class="tag ${i.s > 0 ? "ok" : "no"}">${i.s > 0 ? units(i.s) : "Agotado"}</span>${i.t === "O" ? '<span class="tag ob">Open box</span>' : ""}</div>
+    <div class="sub" style="text-align:right">${i.c ? money(i.c) + " tarjeta" : ""}</div></li>`).join("");
+}
+async function ask(text){
+  text = String(text || "").trim();
+  if (!text) return;
+  if (text.split(/\s+/).length <= 4 && STOP_WORDS.test(fold(text).replace(/[.,!¡]/g, ""))){ setHandsFree(false); speak("Listo. Buen viaje."); render({ html: "Manos libres apagado.", items: [] }, text); return; }
+  $("answer").textContent = "Buscando…";
+  await ensureFresh();
+  const res = answer(text);
+  render(res, text);
+  speak(res.say);
+}
+
+// ---------- voice out ----------
+const synth = window.speechSynthesis;
+let voice = null;
+function pickVoice(){
+  const vs = synth ? synth.getVoices() : [];
+  voice = vs.find(v => /es[-_](EC|CO|PE|MX|US|419)/i.test(v.lang)) || vs.find(v => /^es/i.test(v.lang)) || null;
+}
+if (synth){ pickVoice(); synth.onvoiceschanged = pickVoice; }
+function speak(text){
+  if (!synth){ afterSpeak(); return; }
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = voice?.lang || "es-ES"; if (voice) u.voice = voice; u.rate = 1.05;
+  u.onstart = () => $("mic").classList.add("speaking");
+  u.onend = u.onerror = () => { $("mic").classList.remove("speaking"); afterSpeak(); };
+  synth.speak(u);
+}
+
+// ---------- voice in ----------
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listening = false, handsFree = false, misses = 0, wake = null;
+function setHandsFree(on){
+  handsFree = on; $("handsFree").checked = on; store.set("hv.hf", on ? "1" : null);
+  if (on){ navigator.wakeLock?.request("screen").then(w => wake = w).catch(() => {}); }
+  else { wake?.release().catch(() => {}); wake = null; }
+}
+function afterSpeak(){ if (handsFree && !listening) setTimeout(() => { if (handsFree && !listening && !synth?.speaking) listen(); }, 350); }
+function listen(){
+  if (!SR){ $("answer").innerHTML = "Este navegador no reconoce la voz. Usa el <b>micrófono del teclado</b> en la caja de abajo, o abre la app en Chrome."; $("q").focus(); return; }
+  if (listening){ rec?.stop(); return; }
+  synth?.cancel();
+  rec = new SR();
+  rec.lang = "es-EC"; rec.interimResults = true; rec.maxAlternatives = 1; rec.continuous = false;
+  let final = "";
+  rec.onstart = () => { listening = true; $("mic").classList.add("on"); $("mic").setAttribute("aria-label", "Dejar de escuchar"); $("said").textContent = "Escuchando…"; };
+  rec.onresult = e => {
+    let interim = "";
+    for (let k = e.resultIndex; k < e.results.length; k++){ const r = e.results[k]; if (r.isFinal) final += r[0].transcript; else interim += r[0].transcript; }
+    $("said").textContent = `"${(final + interim).trim()}"`;
+  };
+  rec.onerror = e => {
+    if (e.error === "not-allowed" || e.error === "service-not-allowed"){ setHandsFree(false); $("answer").innerHTML = "No tengo permiso para el micrófono. Actívalo en los ajustes del navegador para este sitio."; }
+    else if (e.error === "language-not-supported"){ rec.lang = "es-ES"; }
+  };
+  rec.onend = () => {
+    listening = false; $("mic").classList.remove("on"); $("mic").setAttribute("aria-label", "Hablar");
+    if (final.trim()){ misses = 0; ask(final); }
+    else {
+      $("said").textContent = "";
+      if (handsFree && ++misses < 3) setTimeout(listen, 300);
+      else if (handsFree){ misses = 0; setHandsFree(false); speak("Apagué manos libres. Toca el micrófono cuando me necesites."); }
+    }
+  };
+  try { rec.start(); } catch(e){ listening = false; }
+}
+$("mic").onclick = () => { misses = 0; listen(); };
+$("handsFree").onchange = e => { setHandsFree(e.target.checked); if (e.target.checked && !listening){ misses = 0; speak("Manos libres activado. Pregúntame."); } };
+$("ask").onsubmit = e => { e.preventDefault(); const v = $("q").value; $("q").value = ""; $("q").blur(); ask(v); };
+
+// ---------- quick budgets ----------
+$("chips").innerHTML = [150, 200, 300, 400, 500, 700, 1000, 1500].map(n => `<button class="chip" data-b="${n}">Hasta ${money(n)}</button>`).join("");
+$("chips").onclick = e => { const b = e.target.closest("[data-b]"); if (b) ask(`Qué me recomiendas con ${b.dataset.b} dólares`); };
+
+// ---------- setup ----------
+function openSetup(open){ $("setup").hidden = !open; if (open) $("cfgUrl").value = src; }
+$("btnSetup").onclick = () => openSetup($("setup").hidden);
+$("cfgSave").onclick = async () => {
+  const v = $("cfgUrl").value.trim(), m = $("cfgMsg");
+  if (!/^https:\/\/script\.google(usercontent)?\.com\/.+[?&]k=.+/.test(v)){ m.hidden = false; m.className = "msg bad"; m.textContent = "El enlace debe empezar con https://script.google.com/ y terminar con ?k= y la clave."; return; }
+  src = v; store.set("hv.url", v); DATA = null; store.set("hv.data", null);
+  m.hidden = false; m.className = "msg"; m.textContent = "Probando…";
+  const ok = await fetchData();
+  m.className = "msg " + (ok ? "ok" : "bad");
+  m.textContent = ok ? `Listo: ${DATA.items.length} modelos leídos.` : "No pude leer el inventario con ese enlace. Revisa que la aplicación web tenga acceso \"Cualquier usuario\" y que la clave sea la correcta.";
+  if (ok) setTimeout(() => openSetup(false), 1200);
+};
+$("cfgDemo").onclick = () => { DATA = DEMO; fresh(); openSetup(false); };
+
+// ---------- start ----------
+loadCache();
+if (!src && !DATA){ openSetup(true); }
+fresh();
+fetchData();
+setInterval(() => { if (document.visibilityState === "visible") fetchData(); }, 5 * 60 * 1000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible"){ if (ageMin() > 2) fetchData(); if (handsFree) navigator.wakeLock?.request("screen").then(w => wake = w).catch(() => {}); } });
+setInterval(() => fresh(), 60000);
+if (store.get("hv.hf")) $("handsFree").checked = false; // hands-free needs a tap each time the app opens (browsers require it)
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+window.__hv = { parse, answer, normalize, setData: d => { DATA = d; } };
+})();
+</script>
+</body>
+</html>
