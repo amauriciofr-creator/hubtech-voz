@@ -413,22 +413,30 @@ function pickVoice(){
   voice = vs.find(v => /es[-_](EC|CO|PE|MX|US|419)/i.test(v.lang) && v.localService) || vs.find(v => /es[-_](EC|CO|PE|MX|US|419)/i.test(v.lang)) || vs.find(v => /^es/i.test(v.lang)) || null;
 }
 if (synth){ pickVoice(); synth.addEventListener?.("voiceschanged", pickVoice); }
+// iPhone: with the ring/silent switch on, or right after the microphone was used, Safari plays speech
+// muted or through the earpiece. A "playback" audio session plus a silent clip started from a tap fixes both.
+const SILENT = "data:audio/wav;base64,UklGRvQHAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YdAHAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==";
+let silentEl = null;
+function audioMode(type){ try { if (navigator.audioSession) navigator.audioSession.type = type; } catch(e){} }
 function unlockVoice(){
   if (!synth || unlocked) return;
   unlocked = true;
-  try { const u = new SpeechSynthesisUtterance(" "); u.volume = 0; u.lang = "es-ES"; keep.push(u); synth.speak(u); } catch(e){}
+  audioMode("playback");
+  try { silentEl = new Audio(SILENT); silentEl.setAttribute("playsinline", ""); silentEl.play().catch(() => {}); } catch(e){}
+  try { const u = new SpeechSynthesisUtterance("."); u.volume = 0.01; u.lang = "es-ES"; keep.push(u); synth.speak(u); } catch(e){}
 }
 document.addEventListener("pointerdown", unlockVoice, { capture: true });
 document.addEventListener("keydown", unlockVoice, { capture: true });
 function voiceProblem(){
   $("said").textContent = "";
-  $("answer").insertAdjacentHTML("beforeend", '<div class="msg bad" style="font-size:15px;margin-top:10px">No se escuchó la voz. Sube el <b>volumen multimedia</b> del teléfono y revisa en Ajustes → Sistema → Idiomas → <b>Salida de texto a voz</b> que esté el motor de Google con español instalado. Luego toca <b>Probar voz</b> en el engranaje.</div>');
+  $("answer").insertAdjacentHTML("beforeend", '<div class="msg bad" style="font-size:15px;margin-top:10px">No se escuchó la voz. En iPhone revisa que el botón lateral de <b>silencio</b> esté apagado y sube el volumen. En Android sube el <b>volumen multimedia</b> del teléfono y revisa en Ajustes → Sistema → Idiomas → <b>Salida de texto a voz</b> que esté el motor de Google con español instalado. Luego toca <b>Probar voz</b> en el engranaje.</div>');
 }
 function speak(text){
   if (!synth){ afterSpeak(); return; }
   const id = ++speakId;
   if (synth.speaking || synth.pending){ synth.cancel(); }
-  queue = String(text).split(/(?<=[.:;!?])\s+/).map(x => x.trim()).filter(Boolean);
+  audioMode("playback");
+  queue = (String(text).match(/[^.:;!?]+[.:;!?]*/g) || []).map(x => x.trim()).filter(x => /\w/.test(x));
   speakingNow = true; $("mic").classList.add("speaking");
   let started = false;
   const next = () => {
@@ -463,6 +471,7 @@ function listen(){
   if (listening){ rec?.stop(); return; }
   speakId++; speakingNow = false; synth?.cancel();
   rec = new SR();
+  audioMode("play-and-record");
   rec.lang = "es-EC"; rec.interimResults = true; rec.maxAlternatives = 1; rec.continuous = false;
   let final = "";
   rec.onstart = () => { listening = true; $("mic").classList.add("on"); $("mic").setAttribute("aria-label", "Dejar de escuchar"); $("said").textContent = "Escuchando…"; };
@@ -476,7 +485,7 @@ function listen(){
     else if (e.error === "language-not-supported"){ rec.lang = "es-ES"; }
   };
   rec.onend = () => {
-    listening = false; $("mic").classList.remove("on"); $("mic").setAttribute("aria-label", "Hablar");
+    listening = false; audioMode("playback"); $("mic").classList.remove("on"); $("mic").setAttribute("aria-label", "Hablar");
     if (final.trim()){ misses = 0; ask(final); }
     else {
       $("said").textContent = "";
