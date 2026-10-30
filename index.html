@@ -119,7 +119,7 @@ form.ask button{border:none;border-radius:999px;background:var(--panel-2);color:
     <h2>Conectar con el inventario</h2>
     <p>Pega el enlace de la hoja "HUB Tech Control Inventario" (el de la aplicación web de Apps Script, terminado en <b>?k=</b> y la clave). Queda guardado solo en este teléfono.</p>
     <input id="cfgUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/…/exec?k=…">
-    <div class="row"><button class="btn" id="cfgSave">Guardar y probar</button><button class="btn sec" id="cfgDemo">Ver con datos de ejemplo</button></div>
+    <div class="row"><button class="btn" id="cfgSave">Guardar y probar</button><button class="btn sec" id="cfgDemo">Ver con datos de ejemplo</button><button class="btn sec" id="cfgVoice">Probar voz</button></div>
     <div class="msg" id="cfgMsg" hidden></div>
   </section>
 
@@ -403,21 +403,50 @@ async function ask(text){
 }
 
 // ---------- voice out ----------
+// Android Chrome drops speech that starts outside a tap, right after cancel(), or in one long utterance,
+// so: unlock on the first tap, speak sentence by sentence, keep references alive, and warn if nothing plays.
 const synth = window.speechSynthesis;
-let voice = null;
+let voice = null, unlocked = false, queue = [], speakingNow = false, speakId = 0;
+const keep = [];
 function pickVoice(){
   const vs = synth ? synth.getVoices() : [];
-  voice = vs.find(v => /es[-_](EC|CO|PE|MX|US|419)/i.test(v.lang)) || vs.find(v => /^es/i.test(v.lang)) || null;
+  voice = vs.find(v => /es[-_](EC|CO|PE|MX|US|419)/i.test(v.lang) && v.localService) || vs.find(v => /es[-_](EC|CO|PE|MX|US|419)/i.test(v.lang)) || vs.find(v => /^es/i.test(v.lang)) || null;
 }
-if (synth){ pickVoice(); synth.onvoiceschanged = pickVoice; }
+if (synth){ pickVoice(); synth.addEventListener?.("voiceschanged", pickVoice); }
+function unlockVoice(){
+  if (!synth || unlocked) return;
+  unlocked = true;
+  try { const u = new SpeechSynthesisUtterance(" "); u.volume = 0; u.lang = "es-ES"; keep.push(u); synth.speak(u); } catch(e){}
+}
+document.addEventListener("pointerdown", unlockVoice, { capture: true });
+document.addEventListener("keydown", unlockVoice, { capture: true });
+function voiceProblem(){
+  $("said").textContent = "";
+  $("answer").insertAdjacentHTML("beforeend", '<div class="msg bad" style="font-size:15px;margin-top:10px">No se escuchó la voz. Sube el <b>volumen multimedia</b> del teléfono y revisa en Ajustes → Sistema → Idiomas → <b>Salida de texto a voz</b> que esté el motor de Google con español instalado. Luego toca <b>Probar voz</b> en el engranaje.</div>');
+}
 function speak(text){
   if (!synth){ afterSpeak(); return; }
-  synth.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = voice?.lang || "es-ES"; if (voice) u.voice = voice; u.rate = 1.05;
-  u.onstart = () => $("mic").classList.add("speaking");
-  u.onend = u.onerror = () => { $("mic").classList.remove("speaking"); afterSpeak(); };
-  synth.speak(u);
+  const id = ++speakId;
+  if (synth.speaking || synth.pending){ synth.cancel(); }
+  queue = String(text).split(/(?<=[.:;!?])\s+/).map(x => x.trim()).filter(Boolean);
+  speakingNow = true; $("mic").classList.add("speaking");
+  let started = false;
+  const next = () => {
+    if (id !== speakId) return;
+    const part = queue.shift();
+    if (!part){ speakingNow = false; $("mic").classList.remove("speaking"); afterSpeak(); return; }
+    const u = new SpeechSynthesisUtterance(part);
+    u.lang = voice?.lang || "es-US"; if (voice) u.voice = voice; u.rate = 1.05; u.volume = 1;
+    u.onstart = () => { started = true; };
+    u.onend = () => { keep.splice(keep.indexOf(u), 1); next(); };
+    u.onerror = ev => { keep.splice(keep.indexOf(u), 1); if (ev.error === "interrupted" || ev.error === "canceled") return; next(); };
+    keep.push(u);
+    synth.resume();
+    synth.speak(u);
+  };
+  // after a cancel() Chrome needs a moment before it accepts new speech
+  setTimeout(next, 120);
+  setTimeout(() => { if (id === speakId && !started && speakingNow){ speakingNow = false; $("mic").classList.remove("speaking"); synth.cancel(); voiceProblem(); afterSpeak(); } }, 4000);
 }
 
 // ---------- voice in ----------
@@ -432,7 +461,7 @@ function afterSpeak(){ if (handsFree && !listening) setTimeout(() => { if (hands
 function listen(){
   if (!SR){ $("answer").innerHTML = "Este navegador no reconoce la voz. Usa el <b>micrófono del teclado</b> en la caja de abajo, o abre la app en Chrome."; $("q").focus(); return; }
   if (listening){ rec?.stop(); return; }
-  synth?.cancel();
+  speakId++; speakingNow = false; synth?.cancel();
   rec = new SR();
   rec.lang = "es-EC"; rec.interimResults = true; rec.maxAlternatives = 1; rec.continuous = false;
   let final = "";
@@ -457,7 +486,7 @@ function listen(){
   };
   try { rec.start(); } catch(e){ listening = false; }
 }
-$("mic").onclick = () => { misses = 0; listen(); };
+$("mic").onclick = () => { misses = 0; if (speakingNow){ speakId++; synth?.cancel(); speakingNow = false; $("mic").classList.remove("speaking"); } listen(); };
 $("handsFree").onchange = e => { setHandsFree(e.target.checked); if (e.target.checked && !listening){ misses = 0; speak("Manos libres activado. Pregúntame."); } };
 $("ask").onsubmit = e => { e.preventDefault(); const v = $("q").value; $("q").value = ""; $("q").blur(); ask(v); };
 
@@ -478,6 +507,7 @@ $("cfgSave").onclick = async () => {
   m.textContent = ok ? `Listo: ${DATA.items.length} modelos leídos.` : "No pude leer el inventario con ese enlace. Revisa que la aplicación web tenga acceso \"Cualquier usuario\" y que la clave sea la correcta.";
   if (ok) setTimeout(() => openSetup(false), 1200);
 };
+$("cfgVoice").onclick = () => { unlockVoice(); speak("Hola Mauricio. Así suena la voz de HUBTECH."); const m = $("cfgMsg"); m.hidden = false; m.className = "msg"; m.textContent = voice ? `Voz: ${voice.name} (${voice.lang})` : "No encontré una voz en español; se usa la voz por defecto del teléfono."; };
 $("cfgDemo").onclick = () => { DATA = DEMO; fresh(); openSetup(false); };
 
 // ---------- start ----------
