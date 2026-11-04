@@ -555,7 +555,7 @@ function pintarResultado(){
   $("#rValor").textContent = "USD " + Math.round(total).toLocaleString("es-EC");
   $("#rDetalle").textContent = `${e.modelo} · ${e.capacidad} · ${estadoTxt}` + (bono ? ` · incluye bono cliente ${usd(bono)}` : "");
   // Úsalo como entrada
-  const lista = (stockNuevos && stockNuevos.length ? stockNuevos : D.nuevos).filter(n => +n.precio > total)
+  const lista = (stockNuevos && stockNuevos.length ? stockNuevos : D.nuevos.filter(n => !(soloCliente && n.ejemplo))).filter(n => +n.precio > total)
     .sort((a, b) => b.precio - a.precio).slice(0, 4);
   $("#rEntrada").hidden = !lista.length;
   $("#rEntradaList").innerHTML = lista.map(n => `<li>Tu ${esc(n.modelo)} te queda en <b>${usd(n.precio - total)}</b></li>`).join("");
