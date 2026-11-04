@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trade-In HUB TECH</title>
+<meta name="description" content="Calcula cuánto vale tu iPhone en HUB TECH STORE y úsalo como parte de pago de tu equipo nuevo.">
+<meta name="theme-color" content="#120f1c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#f5f3fb; --panel:#ffffff; --panel-2:#eeebf6; --line:#e2ddee; --fg:#17131f; --muted:#6c6680;
+  --brand:#7b45f0; --brand-2:#5b25d9; --brand-soft:#efe8ff; --on-brand:#fff;
+  --ink:#17131f; --on-ink:#f3f0fb; --on-ink-muted:#b9b2cf;
+  --ok:#137a4b; --ok-bg:#e2f4ea; --bad:#b3242d; --bad-bg:#fde6e7; --warn:#8f5600; --warn-bg:#fff1d6;
+  --sans:"Outfit","Segoe UI",system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#120f1c; --panel:#1c1829; --panel-2:#272237; --line:#342e47; --fg:#f3f0fb; --muted:#a9a2c0;
+  --brand:#9d6bff; --brand-2:#7b45f0; --brand-soft:#2a2142; --on-brand:#fff;
+  --ink:#0b0913; --on-ink:#f3f0fb; --on-ink-muted:#a9a2c0;
+  --ok:#5fd39a; --ok-bg:#12301f; --bad:#ff8b91; --bad-bg:#3b1519; --warn:#f0b65a; --warn-bg:#382a0f;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#120f1c; --panel:#1c1829; --panel-2:#272237; --line:#342e47; --fg:#f3f0fb; --muted:#a9a2c0;
+  --brand:#9d6bff; --brand-2:#7b45f0; --brand-soft:#2a2142; --on-brand:#fff;
+  --ink:#0b0913; --on-ink:#f3f0fb; --on-ink-muted:#a9a2c0;
+  --ok:#5fd39a; --ok-bg:#12301f; --bad:#ff8b91; --bad-bg:#3b1519; --warn:#f0b65a; --warn-bg:#382a0f;
+  color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--brand)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:12px;min-height:62px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;margin-right:auto}
+.brand i{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;color:var(--on-brand);font-style:normal;font-weight:700}
+.brand small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+.tabs{display:flex;gap:4px;background:var(--panel-2);padding:4px;border-radius:999px}
+.tabs button{border:0;background:none;padding:7px 14px;border-radius:999px;font-size:14px;font-weight:500;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--panel);color:var(--fg);box-shadow:0 1px 3px rgb(0 0 0/.12)}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center}
+.icon-btn svg{width:19px;height:19px}
+
+/* generic */
+section{padding:48px 0}
+h1,h2,h3{line-height:1.15;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(32px,6vw,54px);font-weight:600}
+h2{font-size:clamp(24px,4vw,34px);font-weight:600}
+h3{font-size:19px;font-weight:600}
+.eyebrow{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand);font-weight:600;margin:0 0 12px}
+.muted{color:var(--muted)}
+.center{text-align:center}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:22px}
+.grid{display:grid;gap:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 22px;border-radius:999px;border:0;background:var(--brand);color:var(--on-brand);font-weight:600;text-decoration:none;font-size:15px}
+.btn:hover{background:var(--brand-2)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--fg)}
+.btn.ghost:hover{border-color:var(--brand)}
+.btn.sm{height:38px;padding:0 16px;font-size:14px}
+.btn.danger{background:var(--bad-bg);color:var(--bad)}
+label.f{display:block;font-size:14px;font-weight:500;margin-bottom:8px}
+input.t,select.t,textarea.t{width:100%;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--bg);padding:0 14px;font-size:16px}
+textarea.t{height:auto;padding:10px 14px;min-height:70px}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--brand-soft);color:var(--brand)}
+.note{border-radius:14px;padding:12px 14px;font-size:14px}
+.note.warn{background:var(--warn-bg);color:var(--warn)}
+.note.bad{background:var(--bad-bg);color:var(--bad)}
+.note.ok{background:var(--ok-bg);color:var(--ok)}
+
+/* hero */
+.hero{text-align:center;padding:56px 0 28px}
+.hero p.lead{font-size:clamp(17px,2.4vw,20px);color:var(--muted);max-width:640px;margin:18px auto 0}
+.hero .range{font-size:19px;font-weight:500;margin-top:14px}
+.hero .trust{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 18px;margin-top:18px;font-size:14px;color:var(--muted)}
+.hero .trust span::before{content:"✓ ";color:var(--brand);font-weight:700}
+
+/* calculator */
+.calc{display:grid;gap:18px;grid-template-columns:1.15fr 1fr;align-items:start}
+@media (max-width:820px){.calc{grid-template-columns:1fr}}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.chip{height:44px;border-radius:12px;border:2px solid var(--line);background:var(--bg);font-weight:500;font-size:15px}
+.chip[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft);color:var(--brand)}
+.opt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;border:2px solid var(--line);background:var(--bg);border-radius:16px;padding:14px}
+.opt+.opt{margin-top:8px}
+.opt .dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex:none;margin-top:2px;display:grid;place-items:center}
+.opt[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.opt[aria-pressed="true"] .dot{border-color:var(--brand);background:var(--brand)}
+.opt[aria-pressed="true"] .dot::after{content:"";width:7px;height:7px;border-radius:50%;background:#fff}
+.opt b{display:block;font-weight:600}
+.opt small{color:var(--muted);font-size:14px}
+.result{background:var(--ink);color:var(--on-ink);border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:14px}
+.result .k{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--on-ink-muted);font-weight:500}
+.result .v{font-size:clamp(44px,8vw,60px);font-weight:600;line-height:1;margin-top:6px}
+.result .sub{font-size:14px;color:var(--on-ink-muted)}
+.result .box{border:1px solid rgb(255 255 255/.16);border-radius:16px;padding:14px;background:rgb(255 255 255/.05)}
+.result .box.hl{background:color-mix(in srgb,var(--brand) 22%,transparent);border-color:color-mix(in srgb,var(--brand) 55%,transparent)}
+.result ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px;font-size:14px;color:var(--on-ink-muted)}
+.result ul b{color:var(--on-ink)}
+.result .btn.light{background:var(--on-ink);color:var(--ink)}
+.result .btn.line{background:transparent;color:var(--on-ink);border:1.5px solid rgb(255 255 255/.3)}
+.result .fine{font-size:12px;color:var(--on-ink-muted);margin:0}
+.toggle{display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer}
+.toggle input{width:20px;height:20px;accent-color:var(--brand)}
+
+/* blocks */
+.tiers{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+.cols3{display:grid;gap:14px;grid-template-columns:repeat(3,1fr)}
+.cols4{display:grid;gap:14px;grid-template-columns:repeat(4,1fr)}
+@media (max-width:820px){.tiers,.cols3{grid-template-columns:1fr}.cols4{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.cols4{grid-template-columns:1fr}}
+.num{font-size:13px;color:var(--muted);font-weight:600}
+.ico{width:40px;height:40px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;margin-bottom:10px;font-weight:700}
+.vs{border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.vs .row{display:grid;grid-template-columns:150px 1fr 1fr}
+.vs .row>div{padding:12px 16px;border-top:1px solid var(--line);font-size:14px}
+.vs .row:first-child>div{border-top:0;font-weight:600}
+.vs .row>div:nth-child(2){color:var(--muted);background:var(--panel)}
+.vs .row>div:nth-child(3){background:var(--brand-soft)}
+.vs .row>div:first-child{font-weight:600;background:var(--panel-2)}
+@media (max-width:620px){.vs .row{grid-template-columns:1fr}.vs .row>div:first-child{border-top:1px solid var(--line)}.vs .row:first-child{display:none}}
+details{border-bottom:1px solid var(--line);padding:16px 0}
+summary{font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::after{content:"+";color:var(--brand);font-size:22px;line-height:1}
+details[open] summary::after{content:"−"}
+details p{color:var(--muted);margin:10px 0 0}
+.cta{background:var(--ink);color:var(--on-ink);border-radius:28px;padding:44px 22px;text-align:center}
+.cta p{color:var(--on-ink-muted)}
+footer{padding:28px 0 40px;font-size:13px;color:var(--muted);text-align:center}
+
+/* staff views */
+.staff{padding:28px 0 60px}
+.form2{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+@media (max-width:620px){.form2{grid-template-columns:1fr}}
+.checks{display:grid;gap:6px}
+.checks label{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);font-size:15px;cursor:pointer}
+.checks input{width:19px;height:19px;accent-color:var(--brand);flex:none}
+.checks .amt{margin-left:auto;font-size:13px;color:var(--muted);white-space:nowrap}
+.checks label.block .amt{color:var(--bad);font-weight:600}
+.sum{display:grid;gap:6px;font-size:15px}
+.sum div{display:flex;justify-content:space-between;gap:10px}
+.sum .tot{border-top:1px solid rgb(255 255 255/.2);padding-top:10px;margin-top:4px;font-size:18px;font-weight:600}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em;background:var(--panel-2);position:sticky;top:0}
+td input,td select{width:100%;min-width:70px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--bg);padding:0 8px;font-size:14px}
+td input[type=number]{width:90px;min-width:0;text-align:right}
+td .x{border:0;background:none;color:var(--bad);font-size:18px;width:32px;height:32px;border-radius:8px}
+td .x:hover{background:var(--bad-bg)}
+tr.diff td{background:color-mix(in srgb,var(--warn-bg) 60%,transparent)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sp{flex:1}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--on-ink);padding:10px 18px;border-radius:999px;font-size:14px;z-index:20;box-shadow:0 6px 20px rgb(0 0 0/.25)}
+
+/* acta (print) */
+#acta{display:none}
+@media print{
+  body{background:#fff;color:#000}
+  body>*:not(#acta){display:none!important}
+  #acta{display:block;font:13px/1.5 var(--sans);color:#000}
+  #acta h2{font-size:20px;margin-bottom:4px}
+  #acta table{font-size:13px;margin:10px 0}
+  #acta th,#acta td{border:1px solid #999;background:#fff;color:#000;white-space:normal}
+  #acta .firmas{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:70px}
+  #acta .firmas div{border-top:1px solid #000;padding-top:6px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><i>H</i><div>HUB TECH STORE<small>Trade-In</small></div></div>
+    <nav class="tabs" id="tabs" role="tablist">
+      <button role="tab" data-view="cotizar" aria-selected="true">Cotizar</button>
+      <button role="tab" data-view="recepcion" aria-selected="false">Recepción</button>
+      <button role="tab" data-view="precios" aria-selected="false">Precios</button>
+    </nav>
+    <button class="icon-btn" id="themeBtn" aria-label="Cambiar tema" title="Cambiar tema">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ================= CLIENTE: COTIZAR ================= -->
+<main id="v-cotizar">
+  <div class="wrap">
+    <div class="hero">
+      <p class="eyebrow">Trade-In HUB TECH</p>
+      <h1>¿Cuánto vale tu iPhone?</h1>
+      <p class="lead">Entrégalo como parte de pago y descuenta su valor de tu equipo nuevo. El valor depende del modelo, la capacidad y la salud de la batería.</p>
+      <p class="range" id="rango"></p>
+      <div style="margin-top:22px"><a class="btn" href="#calculadora">Calcular el valor del mío</a></div>
+      <div class="trust"><span>Revisión en minutos, frente a ti</span><span>Sales con tu equipo nuevo el mismo día</span><span>Sin compromiso</span></div>
+    </div>
+  </div>
+
+  <section id="calculadora" style="padding-top:20px">
+    <div class="wrap">
+      <div class="center" style="margin-bottom:26px">
+        <h2>Cotiza tu Trade-In</h2>
+        <p class="muted">Selecciona tu equipo para ver el valor estimado.</p>
+      </div>
+      <div class="calc">
+        <div class="card grid" style="gap:22px;padding:26px">
+          <div>
+            <label class="f" for="cModelo">Modelo de tu iPhone</label>
+            <select class="t" id="cModelo"></select>
+          </div>
+          <div>
+            <span class="f" style="display:block;font-size:14px;font-weight:500;margin-bottom:8px">Capacidad</span>
+            <div class="chips" id="cCap"></div>
+          </div>
+          <div>
+            <span class="f" style="display:block;font-size:14px;font-weight:500;margin-bottom:8px">¿En qué estado está tu equipo?</span>
+            <button class="opt" data-estado="bueno" aria-pressed="true"><span class="dot"></span><span><b>Bueno — batería <span class="umbral"></span>% o más</b><small>Revisa en Ajustes › Batería › Salud de la batería.</small></span></button>
+            <button class="opt" data-estado="regular" aria-pressed="false"><span class="dot"></span><span><b>Regular — batería menos de <span class="umbral"></span>%</b><small>El valor considera el cambio de batería antes de reacondicionarlo.</small></span></button>
+          </div>
+          <label class="toggle" id="bonoWrap"><input type="checkbox" id="cBono"> <span>Lo compré en HUB TECH STORE <span class="pill" id="bonoPill"></span></span></label>
+        </div>
+
+        <div class="result" aria-live="polite">
+          <div>
+            <div class="k" id="rTitulo">Tu iPhone vale aproximadamente</div>
+            <div class="v" id="rValor">USD 0</div>
+            <div class="sub" id="rDetalle"></div>
+          </div>
+          <div class="box" id="rEntrada" hidden>
+            <b style="font-size:14px">Úsalo como entrada:</b>
+            <ul id="rEntradaList"></ul>
+          </div>
+          <div class="box hl" id="rWa">
+            <b style="font-size:14px">Opcional: congela este valor por <span class="dias"></span> días.</b>
+            <div class="grid" style="gap:8px;margin-top:10px">
+              <a class="btn light" id="waCongelar" target="_blank" rel="noopener">Congelar este valor</a>
+              <a class="btn line" id="waAgendar" target="_blank" rel="noopener">Agendar mi revisión</a>
+            </div>
+          </div>
+          <p class="fine">Cotización válida <span class="dias"></span> días: el valor de los usados cambia con el mercado. Es un valor estimado; el monto final se confirma en tienda, frente a ti.</p>
+          <div class="box">
+            <b style="font-size:14px">Qué llevar a la tienda</b>
+            <ul><li>✓ Tu cédula</li><li>✓ El equipo que vas a entregar</li><li>✓ Buscar mi iPhone desactivado</li></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:8px">
+    <div class="wrap">
+      <h2 class="center" style="margin-bottom:20px">Los dos tramos de valor</h2>
+      <div class="tiers">
+        <div class="card"><b>Bueno — batería <span class="umbral"></span>% o más.</b> <span class="muted">Se paga el valor completo de la tabla.</span></div>
+        <div class="card"><b>Regular — batería menos de <span class="umbral"></span>%.</b> <span class="muted">Se paga el segundo valor: el equipo necesita cambio de batería antes de reacondicionarse.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="center" style="margin-bottom:24px">
+        <h2>¿Venderlo por tu cuenta o hacer Trade-In?</h2>
+        <p class="muted">Tu tiempo y tu seguridad valen más. Y hoy mismo estrenas.</p>
+      </div>
+      <div class="vs" id="vs"></div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <h2 class="center" style="margin-bottom:24px">Así de simple</h2>
+      <div class="cols3">
+        <div class="card"><div class="num">01</div><h3 style="margin-top:6px">Cotiza aquí</h3><p class="muted">Elige modelo, capacidad y estado. Ves el valor en segundos.</p></div>
+        <div class="card"><div class="num">02</div><h3 style="margin-top:6px">Revisión en tienda</h3><p class="muted">Revisamos tu equipo frente a ti en minutos. Trae tu cédula y desactiva Buscar mi iPhone.</p></div>
+        <div class="card"><div class="num">03</div><h3 style="margin-top:6px">Te llevas el nuevo</h3><p class="muted">Aplicamos el valor al equipo que elijas y sales con él el mismo día.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <h2 class="center" style="margin-bottom:24px">Sin riesgo, sin sorpresas</h2>
+      <div class="cols4">
+        <div class="card"><div class="ico">$</div><h3>Valor justo</h3><p class="muted">Tabla clara por modelo, capacidad y batería.</p></div>
+        <div class="card"><div class="ico">✓</div><h3>Revisión gratis</h3><p class="muted">Evaluamos tu equipo en minutos, frente a ti.</p></div>
+        <div class="card"><div class="ico">⌫</div><h3>Borrado seguro</h3><p class="muted">Eliminamos tus datos antes de procesar el equipo.</p></div>
+        <div class="card"><div class="ico">↺</div><h3>Sin compromiso</h3><p class="muted">Si el valor final no te convence, te devolvemos tu equipo.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap" style="max-width:760px">
+      <h2 class="center" style="margin-bottom:10px">Preguntas frecuentes</h2>
+      <details><summary>¿El valor de esta página es el valor final?</summary><p>Es una estimación. El monto definitivo se confirma en tienda tras revisar el equipo frente a ti. Si no te convence, no hay ninguna obligación.</p></details>
+      <details><summary>¿Reciben iPhones con batería baja?</summary><p>Sí. La batería cambia el valor (tramo Regular), pero no impide el canje.</p></details>
+      <details><summary>¿Qué pasa con mis datos?</summary><p>Hacemos un borrado seguro de tus datos antes de procesar el equipo.</p></details>
+      <details><summary>¿Qué debo llevar?</summary><p>Tu iPhone y tu cédula. Desactiva Buscar mi iPhone antes de ir (Ajustes › tu nombre › Buscar › Buscar mi iPhone) o te ayudamos en tienda.</p></details>
+      <details><summary>¿Aceptan equipos con pantalla rota u otros daños?</summary><p>Sí, en la mayoría de casos. El asesor te indica el descuento que aplica antes de proceder. Equipos con cuenta iCloud activa o IMEI reportado no se pueden recibir.</p></details>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="cta">
+        <h2>Tu iPhone actual vale más de lo que crees.</h2>
+        <p>Cotízalo hoy y estrena cuando tú digas.</p>
+        <a class="btn" href="#calculadora" style="margin-top:8px">Calcular el valor de mi iPhone</a>
+      </div>
+    </div>
+  </section>
+  <footer><span id="footNombre">HUB TECH STORE</span> · Valores referenciales en USD, sujetos a revisión en tienda.</footer>
+</main>
+
+<!-- ================= TIENDA: RECEPCIÓN ================= -->
+<main id="v-recepcion" class="staff" hidden>
+  <div class="wrap grid" style="gap:18px">
+    <div>
+      <p class="eyebrow">Uso interno</p>
+      <h2>Recepción de equipo</h2>
+      <p class="muted" style="margin:6px 0 0">Revisa el equipo con el cliente, marca lo que tenga y obtén el valor de recepción. Luego guarda e imprime el acta.</p>
+    </div>
+    <div class="calc">
+      <div class="card grid" style="gap:18px">
+        <div class="form2">
+          <div><label class="f" for="rNombre">Cliente</label><input class="t" id="rNombre" autocomplete="off"></div>
+          <div><label class="f" for="rCedula">Cédula</label><input class="t" id="rCedula" inputmode="numeric" autocomplete="off"></div>
+          <div><label class="f" for="rTel">Teléfono</label><input class="t" id="rTel" inputmode="tel" autocomplete="off"></div>
+          <div><label class="f" for="rImei">IMEI / serie</label><input class="t" id="rImei" inputmode="numeric" autocomplete="off"></div>
+          <div><label class="f" for="rModelo">Modelo</label><select class="t" id="rModelo"></select></div>
+          <div><label class="f" for="rCap">Capacidad</label><select class="t" id="rCap"></select></div>
+          <div><label class="f" for="rBat">Salud de batería (%)</label><input class="t" id="rBat" type="number" min="0" max="100" inputmode="numeric" placeholder="ej. 88"></div>
+          <div><label class="f" for="rAjuste">Ajuste manual (USD, + o −)</label><input class="t" id="rAjuste" type="number" step="1" inputmode="numeric" placeholder="0"></div>
+        </div>
+        <div>
+          <span class="f" style="display:block;font-size:14px;font-weight:500;margin-bottom:8px">Revisión física</span>
+          <div class="checks" id="rChecks"></div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="rBono"> <span>Equipo comprado en HUB TECH (bono cliente <span id="rBonoAmt"></span>)</span></label>
+        <div><label class="f" for="rNota">Observaciones</label><textarea class="t" id="rNota" rows="2"></textarea></div>
+      </div>
+
+      <div class="result">
+        <div>
+          <div class="k">Valor de recepción</div>
+          <div class="v" id="rcValor">USD 0</div>
+          <div class="sub" id="rcDetalle"></div>
+        </div>
+        <div class="note bad" id="rcBloq" hidden></div>
+        <div class="box"><div class="sum" id="rcSum"></div></div>
+        <div class="grid" style="gap:8px">
+          <button class="btn light" id="rcGuardar">Guardar recepción</button>
+          <button class="btn line" id="rcImprimir">Guardar e imprimir acta</button>
+          <button class="btn line" id="rcLimpiar">Nueva recepción</button>
+        </div>
+        <p class="fine">Las recepciones se guardan solo en este navegador. Descarga el CSV para respaldarlas.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="bar" style="margin-bottom:12px"><h3>Recepciones guardadas</h3><span class="sp"></span><button class="btn ghost sm" id="hCsv">Descargar CSV</button></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Cédula</th><th>Equipo</th><th>IMEI</th><th>Bat.</th><th>Tabla</th><th>Recepción</th><th></th></tr></thead><tbody id="hBody"></tbody></table></div>
+      <p class="muted" id="hVacio" style="margin:12px 0 0;font-size:14px">Todavía no hay recepciones guardadas.</p>
+    </div>
+  </div>
+</main>
+
+<!-- ================= TIENDA: PRECIOS ================= -->
+<main id="v-precios" class="staff" hidden>
+  <div class="wrap grid" style="gap:18px">
+    <div>
+      <p class="eyebrow">Uso interno</p>
+      <h2>Precios y configuración</h2>
+      <p class="muted" style="margin:6px 0 0">Edita los valores y pulsa <b>Guardar</b> para usarlos en este navegador. Para dejarlos fijos (y para la web), pulsa <b>Descargar precios.js</b> y reemplaza el archivo en la carpeta de la app.</p>
+    </div>
+    <div class="note warn" id="pAviso" hidden>Estás usando precios editados en este navegador, distintos al archivo precios.js.</div>
+
+    <div class="bar">
+      <button class="btn" id="pGuardar">Guardar</button>
+      <button class="btn ghost" id="pDescargar">Descargar precios.js</button>
+      <span class="sp"></span>
+      <button class="btn ghost sm" id="pPct">Subir/bajar todo %</button>
+      <button class="btn danger sm" id="pRestaurar">Volver al archivo</button>
+    </div>
+
+    <div class="card grid" style="gap:14px">
+      <h3>Tienda</h3>
+      <div class="form2">
+        <div><label class="f" for="sWa">WhatsApp (593…, sin +)</label><input class="t" id="sWa" inputmode="numeric" placeholder="593987654321"></div>
+        <div><label class="f" for="sBono">Bono cliente HUB TECH (USD)</label><input class="t" id="sBono" type="number" min="0"></div>
+        <div><label class="f" for="sUmbral">Umbral de batería (%)</label><input class="t" id="sUmbral" type="number" min="50" max="100"></div>
+        <div><label class="f" for="sDias">Validez de la cotización (días)</label><input class="t" id="sDias" type="number" min="1"></div>
+      </div>
+      <div><label class="f" for="sStock">Enlace de stock (opcional, el de api-stock.gs que termina en ?k=…)</label><input class="t" id="sStock" placeholder="https://script.google.com/macros/s/…/exec?k=…"><p class="muted" style="font-size:13px;margin:6px 0 0">Si lo pones, "Úsalo como entrada" usa los iPhone nuevos con stock y su precio en efectivo. Si no, usa la lista de abajo. <span id="sStockEstado"></span></p></div>
+    </div>
+
+    <div class="card grid" style="gap:12px">
+      <div class="bar"><h3>Valores de Trade-In por equipo</h3><span class="sp"></span><button class="btn ghost sm" id="eAdd">+ Agregar equipo</button></div>
+      <div class="tbl-wrap" style="max-height:560px"><table><thead><tr><th>Serie</th><th>Modelo</th><th>Capacidad</th><th>Bueno (USD)</th><th>Regular (USD)</th><th>Dif.</th><th></th></tr></thead><tbody id="eBody"></tbody></table></div>
+    </div>
+
+    <div class="card grid" style="gap:12px">
+      <div class="bar"><h3>Descuentos de recepción</h3><span class="sp"></span><button class="btn ghost sm" id="dAdd">+ Agregar</button></div>
+      <p class="muted" style="margin:0;font-size:14px">% = porcentaje del valor de tabla · USD = monto fijo · Bloquea = no se puede recibir.</p>
+      <div class="tbl-wrap"><table><thead><tr><th>Revisión</th><th>Tipo</th><th>Valor</th><th></th></tr></thead><tbody id="dBody"></tbody></table></div>
+    </div>
+
+    <div class="card grid" style="gap:12px">
+      <div class="bar"><h3>Equipos nuevos para "Úsalo como entrada"</h3><span class="sp"></span><button class="btn ghost sm" id="nAdd">+ Agregar</button></div>
+      <p class="muted" style="margin:0;font-size:14px">Se usa cuando no hay enlace de stock. Los precios iniciales son de ejemplo.</p>
+      <div class="tbl-wrap"><table><thead><tr><th>Equipo</th><th>Precio (USD)</th><th></th></tr></thead><tbody id="nBody"></tbody></table></div>
+    </div>
+  </div>
+</main>
+
+<div id="acta"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="precios.js"></script>
+<script>
+"use strict";
+/* ---------- datos ---------- */
+const KEY_DATOS = "hubtech.tradein.datos", KEY_HIST = "hubtech.tradein.recepciones", KEY_THEME = "hubtech.theme";
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k,v); } catch(e){} }
+};
+const BASE = JSON.parse(JSON.stringify(window.HUBTECH_TRADEIN || {tienda:{},equipos:[],descuentos:[],nuevos:[]}));
+let D = cargar();
+function cargar(){
+  const raw = store.get(KEY_DATOS);
+  if (raw){ try { const o = JSON.parse(raw); if (o && Array.isArray(o.equipos)) return normal(o); } catch(e){} }
+  return normal(JSON.parse(JSON.stringify(BASE)));
+}
+function normal(o){
+  o.tienda = Object.assign({nombre:"HUB TECH STORE",whatsapp:"",validezDias:7,umbralBateria:85,bonoCliente:0,stockUrl:""}, o.tienda||{});
+  o.equipos = o.equipos||[]; o.descuentos = o.descuentos||[]; o.nuevos = o.nuevos||[];
+  return o;
+}
+const editado = () => !!store.get(KEY_DATOS);
+
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const usd = n => "$" + Math.round(n).toLocaleString("es-EC");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const modelos = () => { const m = new Map(); D.equipos.forEach(e => { if (!m.has(e.serie)) m.set(e.serie, []); const l = m.get(e.serie); if (!l.includes(e.modelo)) l.push(e.modelo); }); return m; };
+const capsDe = mod => D.equipos.filter(e => e.modelo === mod).map(e => e.capacidad);
+const buscar = (mod, cap) => D.equipos.find(e => e.modelo === mod && e.capacidad === cap);
+function toast(t){ const el = $("#toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 2400); }
+function fillModelos(sel, valor){
+  sel.innerHTML = [...modelos()].map(([s, l]) => `<optgroup label="${esc(s)}">${l.map(m => `<option>${esc(m)}</option>`).join("")}</optgroup>`).join("");
+  if (valor && [...sel.options].some(o => o.value === valor)) sel.value = valor;
+}
+function descargar(nombre, texto, tipo){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([texto], {type: tipo}));
+  a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+/* ---------- tema ---------- */
+const savedTheme = store.get(KEY_THEME);
+if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+$("#themeBtn").onclick = () => {
+  const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  const t = dark ? "light" : "dark"; document.documentElement.dataset.theme = t; store.set(KEY_THEME, t);
+};
+
+/* ---------- vistas ---------- */
+const params = new URLSearchParams(location.search);
+const soloCliente = params.has("cliente");          // index.html?cliente  -> solo la calculadora (para la web)
+if (soloCliente) $("#tabs").hidden = true;
+/* incrustada en la web (iframe): ocultar barra propia, avisar altura y desplazar la página madre */
+const enIframe = window.parent !== window;
+if (enIframe && soloCliente){
+  document.querySelector(".top").hidden = true;
+  const avisar = () => parent.postMessage({ht: "h", h: Math.ceil(document.documentElement.scrollHeight)}, "*");
+  new ResizeObserver(avisar).observe(document.body); addEventListener("load", avisar);
+  document.addEventListener("click", ev => {
+    const a = ev.target.closest('a[href^="#"]'); if (!a) return;
+    const t = document.querySelector(a.getAttribute("href")); if (!t) return;
+    ev.preventDefault(); parent.postMessage({ht: "y", y: t.getBoundingClientRect().top + scrollY}, "*");
+  });
+}
+function vista(v){
+  if (soloCliente) v = "cotizar";
+  $$("#tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.view === v));
+  ["cotizar","recepcion","precios"].forEach(x => $("#v-" + x).hidden = x !== v);
+  if (v === "recepcion") pintarRecepcion();
+  if (v === "precios") pintarPrecios();
+  if (v === "cotizar") pintarCotizar();
+  if (location.hash.slice(1) !== v && v !== "cotizar") history.replaceState(null, "", "#" + v);
+  if (v === "cotizar" && ["#recepcion","#precios"].includes(location.hash)) history.replaceState(null, "", location.pathname + location.search);
+  window.scrollTo(0, 0);
+}
+$$("#tabs button").forEach(b => b.onclick = () => vista(b.dataset.view));
+
+/* ---------- stock (opcional) ---------- */
+let stockNuevos = null, stockEstado = "";
+async function cargarStock(){
+  stockNuevos = null;
+  if (!D.tienda.stockUrl){ stockEstado = ""; return; }
+  try {
+    const r = await fetch(D.tienda.stockUrl, {cache: "no-store"});
+    const j = await r.json();
+    if (!j.items) throw new Error(j.error || "sin datos");
+    stockNuevos = j.items.filter(i => i.t === "N" && i.s > 0 && i.e > 0 && /iphone/i.test(i.n)).map(i => ({modelo: i.n, precio: i.e}));
+    stockEstado = `Stock leído: ${stockNuevos.length} iPhone nuevos disponibles.`;
+  } catch(e){ stockEstado = "No se pudo leer el enlace de stock (" + e.message + "). Se usa la lista manual."; }
+  const el = $("#sStockEstado"); if (el) el.textContent = stockEstado;
+  pintarResultado();
+}
+
+/* ---------- COTIZAR ---------- */
+const C = {modelo: null, cap: null, estado: "bueno"};
+function pintarCotizar(){
+  const T = D.tienda;
+  const vals = D.equipos.flatMap(e => [e.bueno, e.regular]).filter(n => n > 0);
+  $("#rango").textContent = vals.length ? `Tu iPhone puede valer desde ${usd(Math.min(...vals))} hasta ${usd(Math.max(...vals))}.` : "";
+  $$(".umbral").forEach(e => e.textContent = T.umbralBateria);
+  $$(".dias").forEach(e => e.textContent = T.validezDias);
+  $("#footNombre").textContent = T.nombre;
+  $("#bonoWrap").hidden = !(T.bonoCliente > 0);
+  $("#bonoPill").textContent = "+" + usd(T.bonoCliente);
+  fillModelos($("#cModelo"), C.modelo);
+  C.modelo = $("#cModelo").value;
+  pintarCaps();
+}
+function pintarCaps(){
+  const caps = capsDe(C.modelo);
+  if (!caps.includes(C.cap)) C.cap = caps[0];
+  $("#cCap").innerHTML = caps.map(c => `<button class="chip" aria-pressed="${c === C.cap}" data-cap="${esc(c)}">${esc(c)}</button>`).join("");
+  $$("#cCap .chip").forEach(b => b.onclick = () => { C.cap = b.dataset.cap; pintarCaps(); });
+  pintarResultado();
+}
+$("#cModelo").onchange = e => { C.modelo = e.target.value; pintarCaps(); };
+$$(".opt").forEach(b => b.onclick = () => { C.estado = b.dataset.estado; $$(".opt").forEach(x => x.setAttribute("aria-pressed", x === b)); pintarResultado(); });
+$("#cBono").onchange = pintarResultado;
+function pintarResultado(){
+  const e = buscar(C.modelo, C.cap); if (!e) return;
+  const T = D.tienda, bono = $("#cBono").checked && T.bonoCliente > 0 ? +T.bonoCliente : 0;
+  const base = C.estado === "bueno" ? +e.bueno : +e.regular, total = base + bono;
+  const estadoTxt = C.estado === "bueno" ? `Bueno (batería ${T.umbralBateria}% o más)` : `Regular (batería menos de ${T.umbralBateria}%)`;
+  $("#rTitulo").textContent = `Tu ${e.modelo} vale aproximadamente`;
+  $("#rValor").textContent = "USD " + Math.round(total).toLocaleString("es-EC");
+  $("#rDetalle").textContent = `${e.modelo} · ${e.capacidad} · ${estadoTxt}` + (bono ? ` · incluye bono cliente ${usd(bono)}` : "");
+  // Úsalo como entrada
+  const lista = (stockNuevos && stockNuevos.length ? stockNuevos : D.nuevos).filter(n => +n.precio > total)
+    .sort((a, b) => b.precio - a.precio).slice(0, 4);
+  $("#rEntrada").hidden = !lista.length;
+  $("#rEntradaList").innerHTML = lista.map(n => `<li>Tu ${esc(n.modelo)} te queda en <b>${usd(n.precio - total)}</b></li>`).join("");
+  // WhatsApp
+  const wa = String(T.whatsapp || "").replace(/\D/g, "");
+  $("#rWa").hidden = !wa;
+  if (wa){
+    const txt1 = `Hola ${T.nombre}, quiero congelar por ${T.validezDias} días la cotización de mi ${e.modelo} ${e.capacidad}, estado ${estadoTxt}: USD ${Math.round(total)}.`;
+    const txt2 = `Hola ${T.nombre}, coticé mi ${e.modelo} ${e.capacidad} en la web y quiero agendar mi Trade-In. ¿Cuándo puedo ir?`;
+    $("#waCongelar").href = `https://wa.me/${wa}?text=${encodeURIComponent(txt1)}`;
+    $("#waAgendar").href = `https://wa.me/${wa}?text=${encodeURIComponent(txt2)}`;
+  }
+}
+$("#vs").innerHTML = [["", "Vender por tu cuenta", "Trade-In HUB TECH"],
+  ["Seguridad", "Citas con desconocidos", "Local seguro, revisión frente a ti"],
+  ["Pago", "Billetes falsos o transferencias revertidas", "Formal: el valor se aplica directo al nuevo"],
+  ["Privacidad", "Expones tus datos y tu ubicación", "Borrado seguro de tus datos"],
+  ["Tiempo", "Semanas de regateo mientras el equipo pierde valor", "Minutos, el mismo día"],
+  ["Resultado", "Precio incierto", "Valor claro y sin compromiso"]]
+  .map(r => `<div class="row">${r.map(c => `<div>${esc(c)}</div>`).join("")}</div>`).join("");
+
+/* ---------- RECEPCIÓN ---------- */
+const R = {modelo: null, cap: null};
+function pintarRecepcion(){
+  fillModelos($("#rModelo"), R.modelo); R.modelo = $("#rModelo").value;
+  pintarRCaps();
+  const marcados = new Set($$("#rChecks input:checked").map(i => i.value));
+  $("#rChecks").innerHTML = D.descuentos.map(d => `<label class="${d.tipo === "bloquea" ? "block" : ""}"><input type="checkbox" value="${esc(d.id)}" ${marcados.has(d.id) ? "checked" : ""}> <span>${esc(d.texto)}</span><span class="amt">${d.tipo === "bloquea" ? "No se recibe" : d.tipo === "pct" ? "−" + d.valor + "%" : "−" + usd(d.valor)}</span></label>`).join("");
+  $$("#rChecks input").forEach(i => i.onchange = calcRecepcion);
+  $("#rBonoAmt").textContent = "+" + usd(D.tienda.bonoCliente || 0);
+  pintarHist();
+  calcRecepcion();
+}
+function pintarRCaps(){
+  const caps = capsDe(R.modelo); if (!caps.includes(R.cap)) R.cap = caps[0];
+  $("#rCap").innerHTML = caps.map(c => `<option ${c === R.cap ? "selected" : ""}>${esc(c)}</option>`).join("");
+}
+$("#rModelo").onchange = e => { R.modelo = e.target.value; pintarRCaps(); calcRecepcion(); };
+$("#rCap").onchange = e => { R.cap = e.target.value; calcRecepcion(); };
+["#rBat", "#rAjuste", "#rBono"].forEach(s => $(s).oninput = calcRecepcion);
+function calcRecepcion(){
+  const e = buscar(R.modelo, R.cap); if (!e) return null;
+  const T = D.tienda, batTxt = $("#rBat").value.trim(), bat = batTxt === "" ? null : +batTxt;
+  const estado = bat == null || bat >= T.umbralBateria ? "bueno" : "regular";
+  const tabla = estado === "bueno" ? +e.bueno : +e.regular;
+  const marc = D.descuentos.filter(d => $$("#rChecks input:checked").some(i => i.value === d.id));
+  const bloq = marc.filter(d => d.tipo === "bloquea");
+  const ded = marc.filter(d => d.tipo !== "bloquea").map(d => ({texto: d.texto, monto: d.tipo === "pct" ? Math.round(tabla * d.valor / 100) : +d.valor}));
+  const totalDed = ded.reduce((s, d) => s + d.monto, 0);
+  const bono = $("#rBono").checked ? +(T.bonoCliente || 0) : 0;
+  const ajuste = +($("#rAjuste").value || 0);
+  const valor = Math.max(0, tabla - totalDed + bono + ajuste);
+  $("#rcValor").textContent = bloq.length ? "No se recibe" : "USD " + Math.round(valor).toLocaleString("es-EC");
+  $("#rcDetalle").textContent = `${e.modelo} · ${e.capacidad} · ${estado === "bueno" ? "Bueno" : "Regular"}` + (bat == null ? " (ingresa la batería)" : ` · batería ${bat}%`);
+  $("#rcBloq").hidden = !bloq.length;
+  $("#rcBloq").textContent = bloq.length ? "No se puede recibir hasta resolver: " + bloq.map(d => d.texto).join("; ") + "." : "";
+  $("#rcSum").innerHTML = `<div><span>Valor de tabla (${estado})</span><span>${usd(tabla)}</span></div>` +
+    ded.map(d => `<div><span>− ${esc(d.texto)}</span><span>−${usd(d.monto)}</span></div>`).join("") +
+    (bono ? `<div><span>+ Bono cliente HUB TECH</span><span>+${usd(bono)}</span></div>` : "") +
+    (ajuste ? `<div><span>Ajuste manual</span><span>${ajuste > 0 ? "+" : "−"}${usd(Math.abs(ajuste))}</span></div>` : "") +
+    `<div class="tot"><span>Valor de recepción</span><span>${bloq.length ? "—" : usd(valor)}</span></div>`;
+  $("#rcGuardar").disabled = $("#rcImprimir").disabled = !!bloq.length;
+  return {e, estado, bat, tabla, ded, bono, ajuste, valor, bloq};
+}
+function hist(){ try { return JSON.parse(store.get(KEY_HIST) || "[]"); } catch(e){ return []; } }
+function guardarRecepcion(){
+  const c = calcRecepcion(); if (!c || c.bloq.length) return null;
+  if (!$("#rNombre").value.trim() || !$("#rImei").value.trim()){ toast("Falta el nombre del cliente o el IMEI"); return null; }
+  if (c.bat == null){ toast("Ingresa la salud de la batería"); return null; }
+  const reg = {
+    id: Date.now().toString(36), fecha: new Date().toISOString(),
+    cliente: $("#rNombre").value.trim(), cedula: $("#rCedula").value.trim(), telefono: $("#rTel").value.trim(),
+    imei: $("#rImei").value.trim(), modelo: c.e.modelo, capacidad: c.e.capacidad, bateria: c.bat, estado: c.estado,
+    tabla: c.tabla, descuentos: c.ded, bono: c.bono, ajuste: c.ajuste, valor: Math.round(c.valor), nota: $("#rNota").value.trim()
+  };
+  const h = hist(); h.unshift(reg); store.set(KEY_HIST, JSON.stringify(h));
+  pintarHist(); toast("Recepción guardada");
+  return reg;
+}
+function limpiarRecepcion(){
+  ["#rNombre","#rCedula","#rTel","#rImei","#rBat","#rAjuste","#rNota"].forEach(s => $(s).value = "");
+  $("#rBono").checked = false; $$("#rChecks input").forEach(i => i.checked = false); calcRecepcion();
+}
+$("#rcGuardar").onclick = () => { if (guardarRecepcion()) limpiarRecepcion(); };
+$("#rcImprimir").onclick = () => { const r = guardarRecepcion(); if (r){ imprimirActa(r); limpiarRecepcion(); } };
+$("#rcLimpiar").onclick = limpiarRecepcion;
+const fFecha = iso => new Date(iso).toLocaleString("es-EC", {dateStyle: "short", timeStyle: "short"});
+function pintarHist(){
+  const h = hist();
+  $("#hVacio").hidden = !!h.length;
+  $("#hBody").innerHTML = h.map(r => `<tr><td>${fFecha(r.fecha)}</td><td>${esc(r.cliente)}</td><td>${esc(r.cedula)}</td><td>${esc(r.modelo)} ${esc(r.capacidad)}</td><td>${esc(r.imei)}</td><td>${r.bateria}%</td><td>${usd(r.tabla)}</td><td><b>${usd(r.valor)}</b></td><td><button class="btn ghost sm" data-print="${r.id}">Acta</button> <button class="x" title="Borrar" data-del="${r.id}">×</button></td></tr>`).join("");
+  $$("[data-print]").forEach(b => b.onclick = () => imprimirActa(hist().find(r => r.id === b.dataset.print)));
+  $$("[data-del]").forEach(b => b.onclick = () => { if (confirm("¿Borrar esta recepción?")){ store.set(KEY_HIST, JSON.stringify(hist().filter(r => r.id !== b.dataset.del))); pintarHist(); } });
+}
+$("#hCsv").onclick = () => {
+  const h = hist(); if (!h.length) return toast("No hay recepciones");
+  const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const rows = [["Fecha","Cliente","Cédula","Teléfono","IMEI","Modelo","Capacidad","Batería %","Estado","Valor tabla","Descuentos","Total descuentos","Bono","Ajuste","Valor recepción","Observaciones"]]
+    .concat(h.map(r => [fFecha(r.fecha), r.cliente, r.cedula, r.telefono, r.imei, r.modelo, r.capacidad, r.bateria, r.estado, r.tabla,
+      r.descuentos.map(d => d.texto + " -" + d.monto).join(" | "), r.descuentos.reduce((s, d) => s + d.monto, 0), r.bono, r.ajuste, r.valor, r.nota]));
+  descargar("recepciones-tradein.csv", "﻿" + rows.map(r => r.map(q).join(";")).join("\r\n"), "text/csv");
+};
+function imprimirActa(r){
+  if (!r) return;
+  const T = D.tienda;
+  $("#acta").innerHTML = `<h2>${esc(T.nombre)} · Acta de recepción Trade-In</h2>
+    <div>Fecha: ${fFecha(r.fecha)} · N.º ${esc(r.id.toUpperCase())}</div>
+    <table><tr><th>Cliente</th><td>${esc(r.cliente)}</td><th>Cédula</th><td>${esc(r.cedula)}</td></tr>
+    <tr><th>Teléfono</th><td>${esc(r.telefono)}</td><th>IMEI / serie</th><td>${esc(r.imei)}</td></tr>
+    <tr><th>Equipo</th><td>${esc(r.modelo)} ${esc(r.capacidad)}</td><th>Batería</th><td>${r.bateria}% (${r.estado})</td></tr></table>
+    <table><tr><th>Concepto</th><th style="text-align:right">USD</th></tr>
+    <tr><td>Valor de tabla (${r.estado})</td><td style="text-align:right">${r.tabla.toFixed(2)}</td></tr>
+    ${r.descuentos.map(d => `<tr><td>− ${esc(d.texto)}</td><td style="text-align:right">-${d.monto.toFixed(2)}</td></tr>`).join("")}
+    ${r.bono ? `<tr><td>+ Bono cliente</td><td style="text-align:right">${(+r.bono).toFixed(2)}</td></tr>` : ""}
+    ${r.ajuste ? `<tr><td>Ajuste</td><td style="text-align:right">${(+r.ajuste).toFixed(2)}</td></tr>` : ""}
+    <tr><th>Valor de recepción aplicado como parte de pago</th><th style="text-align:right">${(+r.valor).toFixed(2)}</th></tr></table>
+    ${r.nota ? `<p>Observaciones: ${esc(r.nota)}</p>` : ""}
+    <p>El cliente declara ser propietario legítimo del equipo, que no tiene reporte de robo ni bloqueo, y autoriza el borrado de sus datos. El valor se aplica como parte de pago de un equipo nuevo en ${esc(T.nombre)}.</p>
+    <div class="firmas"><div>Cliente · C.I. ${esc(r.cedula)}</div><div>Asesor ${esc(T.nombre)}</div></div>`;
+  setTimeout(() => window.print(), 50);
+}
+
+/* ---------- PRECIOS ---------- */
+let E = null; // copia en edición
+function pintarPrecios(){
+  E = JSON.parse(JSON.stringify(D));
+  $("#pAviso").hidden = !editado();
+  $("#sWa").value = E.tienda.whatsapp || ""; $("#sBono").value = E.tienda.bonoCliente; $("#sUmbral").value = E.tienda.umbralBateria;
+  $("#sDias").value = E.tienda.validezDias; $("#sStock").value = E.tienda.stockUrl || ""; $("#sStockEstado").textContent = stockEstado;
+  tablaEquipos(); tablaDesc(); tablaNuevos();
+}
+const baseDe = e => BASE.equipos.find(b => b.modelo === e.modelo && b.capacidad === e.capacidad);
+function tablaEquipos(){
+  $("#eBody").innerHTML = E.equipos.map((e, i) => {
+    const b = baseDe(e), cambio = !b || b.bueno !== +e.bueno || b.regular !== +e.regular;
+    return `<tr class="${cambio ? "diff" : ""}"><td><input data-i="${i}" data-k="serie" value="${esc(e.serie)}"></td><td><input data-i="${i}" data-k="modelo" value="${esc(e.modelo)}"></td><td><input data-i="${i}" data-k="capacidad" value="${esc(e.capacidad)}" style="width:90px;min-width:0"></td><td><input type="number" data-i="${i}" data-k="bueno" value="${e.bueno}"></td><td><input type="number" data-i="${i}" data-k="regular" value="${e.regular}"></td><td class="muted">${usd(e.bueno - e.regular)}</td><td><button class="x" data-i="${i}" title="Quitar">×</button></td></tr>`;
+  }).join("");
+  $$("#eBody input").forEach(inp => inp.onchange = () => { const e = E.equipos[inp.dataset.i]; e[inp.dataset.k] = inp.type === "number" ? +inp.value : inp.value.trim(); tablaEquipos(); });
+  $$("#eBody .x").forEach(b => b.onclick = () => { E.equipos.splice(+b.dataset.i, 1); tablaEquipos(); });
+}
+function tablaDesc(){
+  $("#dBody").innerHTML = E.descuentos.map((d, i) => `<tr><td><input data-i="${i}" data-k="texto" value="${esc(d.texto)}" style="min-width:260px"></td><td><select data-i="${i}" data-k="tipo">${[["pct","%"],["usd","USD"],["bloquea","Bloquea"]].map(([v, t]) => `<option value="${v}" ${d.tipo === v ? "selected" : ""}>${t}</option>`).join("")}</select></td><td><input type="number" data-i="${i}" data-k="valor" value="${d.valor}" ${d.tipo === "bloquea" ? "disabled" : ""}></td><td><button class="x" data-i="${i}" title="Quitar">×</button></td></tr>`).join("");
+  $$("#dBody input,#dBody select").forEach(inp => inp.onchange = () => { const d = E.descuentos[inp.dataset.i]; d[inp.dataset.k] = inp.type === "number" ? +inp.value : inp.value.trim(); tablaDesc(); });
+  $$("#dBody .x").forEach(b => b.onclick = () => { E.descuentos.splice(+b.dataset.i, 1); tablaDesc(); });
+}
+function tablaNuevos(){
+  $("#nBody").innerHTML = E.nuevos.map((n, i) => `<tr><td><input data-i="${i}" data-k="modelo" value="${esc(n.modelo)}" style="min-width:240px"></td><td><input type="number" data-i="${i}" data-k="precio" value="${n.precio}"> ${n.ejemplo ? '<span class="pill">ejemplo</span>' : ""}</td><td><button class="x" data-i="${i}" title="Quitar">×</button></td></tr>`).join("");
+  $$("#nBody input").forEach(inp => inp.onchange = () => { const n = E.nuevos[inp.dataset.i]; n[inp.dataset.k] = inp.type === "number" ? +inp.value : inp.value.trim(); delete n.ejemplo; tablaNuevos(); });
+  $$("#nBody .x").forEach(b => b.onclick = () => { E.nuevos.splice(+b.dataset.i, 1); tablaNuevos(); });
+}
+$("#eAdd").onclick = () => { const u = E.equipos[E.equipos.length - 1] || {serie: "iPhone", modelo: "", capacidad: "128GB"}; E.equipos.push({serie: u.serie, modelo: "", capacidad: "128GB", bueno: 0, regular: 0}); tablaEquipos(); const ins = $$("#eBody tr:last-child input"); ins[1] && ins[1].focus(); };
+$("#dAdd").onclick = () => { E.descuentos.push({id: "d" + Date.now().toString(36), texto: "", tipo: "pct", valor: 0}); tablaDesc(); };
+$("#nAdd").onclick = () => { E.nuevos.push({modelo: "", precio: 0}); tablaNuevos(); };
+$("#pPct").onclick = () => {
+  const p = parseFloat(prompt("¿Cuánto % subir (+) o bajar (−) todos los valores de Trade-In? Ej: -5", "-5"));
+  if (!isFinite(p) || !p) return;
+  E.equipos.forEach(e => { e.bueno = Math.round(e.bueno * (1 + p / 100) / 5) * 5; e.regular = Math.round(e.regular * (1 + p / 100) / 5) * 5; });
+  tablaEquipos(); toast(`Valores ${p > 0 ? "subidos" : "bajados"} ${Math.abs(p)}% (redondeo a $5). Pulsa Guardar.`);
+};
+function leerTienda(){
+  E.tienda.whatsapp = $("#sWa").value.replace(/\D/g, ""); E.tienda.bonoCliente = +$("#sBono").value || 0;
+  E.tienda.umbralBateria = +$("#sUmbral").value || 85; E.tienda.validezDias = +$("#sDias").value || 7; E.tienda.stockUrl = $("#sStock").value.trim();
+}
+function validar(){
+  leerTienda();
+  E.equipos = E.equipos.filter(e => e.modelo);
+  const malo = E.equipos.find(e => !(e.bueno > 0) || !(e.regular >= 0) || e.regular > e.bueno);
+  if (malo){ toast(`Revisa ${malo.modelo} ${malo.capacidad}: Regular no puede ser mayor que Bueno`); return false; }
+  const vistos = new Set();
+  for (const e of E.equipos){ const k = e.modelo + "|" + e.capacidad; if (vistos.has(k)){ toast(`${e.modelo} ${e.capacidad} está repetido`); return false; } vistos.add(k); }
+  E.descuentos = E.descuentos.filter(d => d.texto); E.nuevos = E.nuevos.filter(n => n.modelo && n.precio > 0);
+  return true;
+}
+$("#pGuardar").onclick = () => {
+  if (!validar()) return;
+  const stockCambio = E.tienda.stockUrl !== D.tienda.stockUrl;
+  D = normal(JSON.parse(JSON.stringify(E))); store.set(KEY_DATOS, JSON.stringify(D));
+  pintarPrecios(); toast("Precios guardados en este navegador");
+  if (stockCambio) cargarStock();
+};
+$("#pDescargar").onclick = () => {
+  if (!validar()) return;
+  const o = JSON.parse(JSON.stringify(E));
+  const fila = e => `    { serie: ${JSON.stringify(e.serie)}, modelo: ${JSON.stringify(e.modelo)}, capacidad: ${JSON.stringify(e.capacidad)}, bueno: ${+e.bueno}, regular: ${+e.regular} }`;
+  const txt = `/*\n * HUB TECH STORE · Trade-In · TABLA DE PRECIOS\n * Generado desde la app el ${new Date().toLocaleString("es-EC")}.\n * Reemplaza el precios.js de la carpeta de la app con este archivo.\n * bueno = batería >= umbralBateria · regular = batería menor\n * descuentos.tipo: "pct" (% del valor) · "usd" (monto fijo) · "bloquea" (no se recibe)\n */\nwindow.HUBTECH_TRADEIN = {\n  tienda: ${JSON.stringify(o.tienda, null, 2).replace(/\n/g, "\n  ")},\n\n  equipos: [\n${o.equipos.map(fila).join(",\n")}\n  ],\n\n  descuentos: ${JSON.stringify(o.descuentos, null, 2).replace(/\n/g, "\n  ")},\n\n  nuevos: ${JSON.stringify(o.nuevos, null, 2).replace(/\n/g, "\n  ")}\n};\n`;
+  descargar("precios.js", txt, "text/javascript");
+};
+$("#pRestaurar").onclick = () => {
+  if (!confirm("¿Descartar los cambios de este navegador y volver a los valores de precios.js?")) return;
+  store.set(KEY_DATOS, null); D = cargar(); pintarPrecios(); toast("Se volvió a los valores del archivo"); cargarStock();
+};
+
+/* ---------- inicio ---------- */
+const inicial = location.hash.slice(1);
+vista(["recepcion", "precios"].includes(inicial) ? inicial : "cotizar");
+cargarStock();
+</script>
+</body>
+</html>
